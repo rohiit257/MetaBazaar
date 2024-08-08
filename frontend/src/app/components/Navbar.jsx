@@ -1,13 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useContext } from "react";
 import Link from "next/link";
+import { WalletContext } from "@/context/wallet";
+import { BrowserProvider } from "ethers";
 
 const Navbar = ({ className }) => {
-  const [active, setActive] = useState(null);
+  const {
+    isConnected,
+    setIsConnected,
+    userAddress,
+    setUserAddress,
+    signer,
+    setSigner,
+  } = useContext(WalletContext);
+
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert("Please Install MetaMask To Continue");
+      return;
+    }
+
+    try {
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      setSigner(signer);
+      const accounts = await provider.send("eth_requestAccounts", []);
+      setIsConnected(true);
+      setUserAddress(accounts[0]);
+      const network = await provider.getNetwork();
+      const chainID = network.chainId;
+      const sepoliaNetworkId = "11155111"; // Corrected to be a number
+
+      if (chainID != sepoliaNetworkId) {
+        alert("Switch to Sepolia network to continue");
+      }
+    } catch (error) {
+      console.log("Connection error", error);
+    }
+  };
+
+  // Function to truncate wallet address
+  const truncateAddress = (address) => {
+    return address ? `${address.slice(0, 8)}...` : "";
+  };
 
   return (
-    <div className={`sticky top-0 z-50 w-full bg-black shadow-md ${className} border-b border-zinc-800`}>
+    <div
+      className={`sticky top-0 z-50 w-full bg-black shadow-md ${className} border-b border-zinc-800`}
+    >
       <div className="mt-3 mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         <div className="inline-flex items-center space-x-2">
           <span>
@@ -24,7 +65,9 @@ const Navbar = ({ className }) => {
               ></path>
             </svg>
           </span>
-          <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">METABAZAAR</span>
+          <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">
+            METABAZAAR
+          </span>
         </div>
         <div className="hidden lg:block">
           <ul className="inline-flex space-x-8">
@@ -55,12 +98,22 @@ const Navbar = ({ className }) => {
           </ul>
         </div>
         <div className="hidden lg:block">
-          <button
-            type="button"
-            className="rounded-md bg-sky-200 px-3 mb-2 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
-          >
-            CONNECT WALLET
-          </button>
+          {isConnected ? (
+            <button
+              type="button"
+              className="rounded-md bg-zinc-900 px-3 mb-2 py-2 text-sm font-semibold text-pink-400 shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide "
+            >
+              {truncateAddress(userAddress)}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={connectWallet}
+              className="rounded-md bg-sky-200 px-3 mb-2 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
+            >
+              CONNECT WALLET
+            </button>
+          )}
         </div>
         <div className="lg:hidden">
           <svg
