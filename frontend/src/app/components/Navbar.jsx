@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const cpmonoFont = { fontFamily: "'cpmono', sans-serif" };
-
 const Navbar = ({ className }) => {
   const [active, setActive] = useState(null);
 
@@ -26,15 +24,14 @@ const Navbar = ({ className }) => {
               ></path>
             </svg>
           </span>
-          <span className="font-bold text-slate-300" style={cpmonoFont}>METABAZAAR</span>
+          <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">METABAZAAR</span>
         </div>
         <div className="hidden lg:block">
           <ul className="inline-flex space-x-8">
             <li>
               <Link
                 href="#"
-                className="text-sm font-semibold text-sky-200 hover:text-sky-300 "
-                style={cpmonoFont}
+                className="text-base font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 COLLECTIONS
               </Link>
@@ -42,8 +39,7 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="#"
-                className="text-sm font-semibold text-pink-400 hover:text-sky-300 "
-                style={cpmonoFont}
+                className="text-base font-semibold text-pink-400 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 MINT
               </Link>
@@ -51,8 +47,7 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="#"
-                className="text-sm font-semibold text-slate-300 hover:text-pink-400"
-                style={cpmonoFont}
+                className="text-base font-semibold text-slate-300 hover:text-pink-400 font-space-mono tracking-wide"
               >
                 PROFILE
               </Link>
@@ -62,8 +57,7 @@ const Navbar = ({ className }) => {
         <div className="hidden lg:block">
           <button
             type="button"
-            className="rounded-md bg-sky-200 px-3 mb-2 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-            style={cpmonoFont}
+            className="rounded-md bg-sky-200 px-3 mb-2 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
           >
             CONNECT WALLET
           </button>
