@@ -12,7 +12,18 @@ module.exports = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      boxShadow: {
+        'glow': '0 0 5px rgba(0, 255, 255, 0.8), 0 0 10px rgba(0, 255, 255, 0.8)',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      addUtilities({
+        '.text-shadow': {
+          textShadow: '0 0 3px rgba(0, 255, 255, 0.8), 0 0 6px rgba(0, 255, 255, 0.8)',
+        },
+      });
+    },
+  ],
 };
