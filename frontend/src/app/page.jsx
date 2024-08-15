@@ -1,8 +1,21 @@
 import Navbar from "./components/Navbar";
+import { SparklesCore } from "../components/ui/sparkles";
+
 
 export default function Home() {
   return (
     <>
+          <div className="w-full absolute inset-0 h-screen bg-black bg-fixed">
+        <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="fixed w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
       <Navbar />
 
       <div className="m-8 p-8">

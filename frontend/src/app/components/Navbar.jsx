@@ -4,6 +4,7 @@ import { useContext } from "react";
 import Link from "next/link";
 import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
+import MINT from "../mint/page";
 
 const Navbar = ({ className }) => {
   const {
@@ -81,7 +82,7 @@ const Navbar = ({ className }) => {
             </li>
             <li>
               <Link
-                href="#"
+                href=".\mint"
                 className="text-base font-semibold text-pink-400 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 MINT
