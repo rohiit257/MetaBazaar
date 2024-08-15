@@ -72,12 +72,20 @@ const Navbar = ({ className }) => {
         </div>
         <div className="hidden lg:block">
           <ul className="inline-flex space-x-8">
+          <li>
+              <Link
+                href="/"
+                className="text-base font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
+              >
+                HOME
+              </Link>
+            </li>
             <li>
               <Link
                 href="#"
                 className="text-base font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
               >
-                COLLECTIONS
+                MARKETPLACE
               </Link>
             </li>
             <li>
