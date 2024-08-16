@@ -4,40 +4,35 @@ import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
+import NFTCard from "../components/nftCard/NFTCard";
 import Navbar from "../components/Navbar";
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
-  const [error, setError] = useState(null);
   const { isConnected, signer } = useContext(WalletContext);
 
-  // Fetch all listed NFTs
   async function getNFTitems() {
-    if (!signer) return [];
-
+    const itemsArray = [];
+    if (!signer) return;
+  
     const contract = new ethers.Contract(
       MarketplaceJson.address,
       MarketplaceJson.abi,
       signer
     );
-
+  
     try {
       const transaction = await contract.getAllListedNFTs();
-      console.log("Transaction data:", transaction);
-
-      const itemsArray = await Promise.all(transaction.map(async (i) => {
+  
+      for (const i of transaction) {
         const tokenId = parseInt(i.tokenId);
-        console.log(`Fetching token URI for tokenId ${tokenId}`);
         const tokenURI = await contract.tokenURI(tokenId);
-        console.log(`Token URI: ${tokenURI}`);
-
+  
         try {
-          const meta = (await axios.get(tokenURI)).data;
-          console.log(`Meta data for tokenId ${tokenId}:`, meta);
-          
+          const { data: meta } = await axios.get(tokenURI);
           const price = ethers.formatEther(i.price);
-
-          return {
+  
+          const item = {
             price,
             tokenId,
             seller: i.seller,
@@ -46,62 +41,55 @@ export default function Marketplace() {
             name: meta.name,
             description: meta.description,
           };
+  
+          itemsArray.push(item);
         } catch (err) {
-          console.error(`Error fetching metadata for tokenId ${tokenId}:`, err);
-          return null;
+          console.error(`Error fetching metadata for tokenId ${tokenId}:`, err.response ? err.response.data : err.message);
         }
-      }));
-
-      return itemsArray.filter(item => item !== null);
+      }
     } catch (error) {
-      console.error("Error fetching NFT items:", error);
-      setError("Failed to fetch NFT items. Please try again later.");
-      return [];
+      console.error("Error fetching NFT items:", error.response ? error.response.data : error.message);
     }
+    return itemsArray;
   }
+  
 
   useEffect(() => {
-    if (isConnected) {
-      const fetchData = async () => {
+    const fetchData = async () => {
+      try {
         const itemsArray = await getNFTitems();
         setItems(itemsArray);
-      };
+      } catch (error) {
+        console.error("Error fetching NFT items:", error);
+      }
+    };
 
-      fetchData();
-    }
-  }, [isConnected, signer]);
+    fetchData();
+  }, [isConnected]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-black">
       <Navbar />
-      <div className="container mx-auto p-4">
-        <div className="mt-8">
+      <div className="p-8">
+        <div className="container mx-auto">
           {isConnected ? (
             <>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900">NFT Marketplace</h2>
+                <h2 className="text-4xl font-bold text-gray-900">NFT Marketplace</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {items.length > 0 ? (
-                  items.map((item, index) => (
-                    <div key={index} className="border p-4 bg-white rounded shadow-md">
-                      <img src={item.image} alt={item.name} className="w-full h-48 object-cover rounded mb-4" />
-                      <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
-                      <p className="text-gray-700 mb-2">{item.description}</p>
-                      <p className="text-gray-900 font-bold">Price: {item.price} ETH</p>
-                      <p className="text-gray-500">Seller: {item.seller}</p>
-                      <p className="text-gray-500">Owner: {item.owner}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center text-gray-500">No NFTs Listed Now...</div>
-                )}
-              </div>
+              {items?.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {items?.map((value, index) => (
+                    <NFTCard item={value} key={index} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">No NFT Listed Now...</div>
+              )}
             </>
           ) : (
-            <div className="text-center text-gray-500">You are not connected...</div>
+            <div className="text-center text-red-500">You are not connected...</div>
           )}
-          {error && <div className="text-center text-red-500 mt-4">{error}</div>}
         </div>
       </div>
     </div>

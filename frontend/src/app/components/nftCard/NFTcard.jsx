@@ -1,7 +1,5 @@
-import GetIpfsUrlFromPinata from "@/app/utils";
 import Image from "next/image";
-
-import styles from "./NFTCard.module.css";
+import GetIpfsUrlFromPinata from "@/app/utils";
 import Link from "next/link";
 
 export default function NFTCard({ item }) {
@@ -13,16 +11,24 @@ export default function NFTCard({ item }) {
       : item.description;
 
   return (
-    <div className={styles.tile}>
-      <div className={styles.imageContainer}>
-        <Image src={IPFSUrl} alt="" width={500} height={360} />
+    <Link href={`/nft/${item.tokenId}`} className="block w-[300px] rounded-md bg-zinc-900 border-zinc-900 hover:bg-zinc-800 transition-colors">
+      <div className="relative">
+        <Image
+          src={IPFSUrl}
+          alt={item.name}
+          width={300}
+          height={200}
+          className="h-[200px] w-full rounded-md object-cover"
+        />
       </div>
-      <div className={styles.overlay}>
-        <Link href={`/nft/${item.tokenId}`} className={styles.text}>
-          <strong>{item.name}</strong>
-          <p>{limitedDescription}</p>
-        </Link>
+      <div className="p-4">
+        <h1 className="text-lg font-semibold uppercase text-slate-300 font-space-mono">{item.name}</h1>
+        <p className="mt-3 text-sm text-slate-300 font-space-mono">{limitedDescription}</p>
+        <div className="mt-4 flex items-center justify-between text-slate-300 font-space-mono">
+          <span className="text-lg font-semibold">{item.price} ETH</span>
+          <span className="text-sm">#{item.tokenId}</span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,6 +1,5 @@
-"use client"
+"use client";
 
-import styles from "./mint.module.css"
 import { useRouter } from "next/navigation";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
 import marketplace from "./../marketplace.json";
@@ -18,7 +17,7 @@ export default function MINT() {
   const [fileURL, setFileURL] = useState();
   const [message, updateMessage] = useState("");
   const [btnDisabled, setBtnDisabled] = useState(true);
-  const [btnContent, setBtnContent] = useState("List NFT");
+  const [btnContent, setBtnContent] = useState("MINT NFT");
   const router = useRouter();
   const { isConnected, signer } = useContext(WalletContext);
 
@@ -26,7 +25,7 @@ export default function MINT() {
     try {
       const file = e.target.files[0];
       if (!file) return;
-      
+
       const data = new FormData();
       data.set("file", file);
 
@@ -96,12 +95,12 @@ export default function MINT() {
       let transaction = await contract.createToken(metadataURL, price);
       await transaction.wait();
 
-      setBtnContent("List NFT");
+      setBtnContent("LIST NFT");
       setBtnDisabled(true);
       updateMessage("");
       updateFormParams({ name: "", description: "", price: "" });
       alert("Successfully listed your NFT!");
-      router.push("/");
+      router.push("/marketplace");
     } catch (e) {
       alert("Upload error: " + e.message);
       console.error("Error listing NFT:", e);
@@ -109,28 +108,42 @@ export default function MINT() {
   }
 
   return (
-    <div className={styles.container}>
-      <Navbar/>
+    <div className="relative flex flex-col min-h-screen font-space-mono">
+      {/* Background Image Container */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url('https://i.pinimg.com/564x/c0/b9/d2/c0b9d236564328481bb78901ccda6beb.jpg')`,
+          backgroundRepeat: 'repeat', // Repeat the image
+          backgroundSize: '500px 500px', // Adjust the size of the image
+          zIndex: -1,
+        }}
+      ></div>
+      <Navbar />
       {isConnected ? (
-        <div className={styles.innerContainer}>
-          <div className={styles.content}>
-            <h2 className={styles.heading}>Upload your NFT</h2>
-            <form className={styles.Form} onSubmit={listNFT}>
-              <div className={styles.FormContent}>
-                <label className={styles.Label}>NFT name</label>
+        <div className="flex-1 flex items-center justify-center p-4 relative">
+          <div className="max-w-md w-full bg-black p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-6 text-slate-300">MINT YOUT NFT</h2>
+            <form className="space-y-4" onSubmit={listNFT}>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-slate-300">
+                  NFT NAME
+                </label>
                 <input
                   type="text"
-                  className={styles.Input}
+                  className="block w-full px-3 py-2 bg-black text-white border border-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-sky-300 focus:border-sky-300 sm:text-sm transition-transform hover:scale-105"
                   value={formParams.name}
                   onChange={(e) =>
                     updateFormParams({ ...formParams, name: e.target.value })
                   }
                 />
               </div>
-              <div className={styles.FormContent}>
-                <label className={styles.Label}>NFT description</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-slate-300">
+                  NFT DESCRIPTION
+                </label>
                 <textarea
-                  className={`${styles.Input} ${styles.TextArea}`}
+                  className="block w-full px-3 py-2 bg-black text-white border border-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-sky-300 focus:border-sky-300 sm:text-sm transition-transform hover:scale-105"
                   value={formParams.description}
                   onChange={(e) =>
                     updateFormParams({
@@ -140,38 +153,41 @@ export default function MINT() {
                   }
                 />
               </div>
-              <div className={styles.FormContent}>
-                <label className={styles.Label}>Price (in Eth)</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-slate-300">
+                  PRICE (IN ETH)
+                </label>
                 <input
                   type="number"
-                  className={styles.Input}
+                  className="block w-full px-3 py-2 bg-black text-white border border-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-sky-300 focus:border-sky-300 sm:text-sm transition-transform hover:scale-105"
                   value={formParams.price}
                   onChange={(e) =>
                     updateFormParams({ ...formParams, price: e.target.value })
                   }
                 />
               </div>
-              <div className={styles.FormContent}>
-                <label className={styles.Label}>Upload image</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-slate-300">
+                  UPLOAD IMAGE
+                </label>
                 <input
                   type="file"
-                  className={styles.Input}
+                  className="block w-full px-3 py-2 bg-black text-white border border-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-sky-300 focus:border-sky-300 sm:text-sm transition-transform hover:scale-105"
                   onChange={onFileChange}
                 />
               </div>
-              <br />
-              <div className={styles.msg}>{message}</div>
+              <div className="text-red-500">{message}</div>
               <button
                 type="submit"
-                className={
+                className={`w-full py-2 px-4 border rounded-md shadow-sm text-zinc-800 ${
                   btnDisabled
-                    ? `${styles.btn} ${styles.inactivebtn}`
-                    : `${styles.btn} ${styles.activebtn}`
-                }
+                    ? "bg-sky-200 cursor-not-allowed"
+                    : "bg-pink-300 hover:bg-pink-400"
+                }`}
                 disabled={btnDisabled}
               >
                 {btnContent === "Processing..." && (
-                  <span className={styles.spinner} />
+                  <span className="animate-spin h-5 w-5 border-4 border-t-4  rounded-full mr-2 inline-block"></span>
                 )}
                 {btnContent}
               </button>
@@ -179,9 +195,9 @@ export default function MINT() {
           </div>
         </div>
       ) : (
-        <div className={styles.innerContainer}>
-          <div className={styles.notConnected}>
-            Connect Your Wallet to Continue...
+        <div className="flex-1 flex items-center justify-center p-4 relative">
+          <div className="font-bold text-lg text-gray-700 bg-black ">
+            CONNECT YOUR WALLET TO CONTINUE......
           </div>
         </div>
       )}
