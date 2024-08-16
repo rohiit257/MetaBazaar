@@ -1,16 +1,13 @@
 "use client"
 
-import Footer from "../components/footer/Footer";
 import styles from "./mint.module.css"
 import { useRouter } from "next/navigation";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
 import marketplace from "./../marketplace.json";
 import { ethers } from "ethers";
 import { WalletContext } from "@/context/wallet";
-import { useState } from "react";
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import Navbar from "../components/Navbar";
-import { BackgroundBeams } from "@/components/ui/background-beams";
 
 export default function MINT() {
   const [formParams, updateFormParams] = useState({
@@ -20,7 +17,7 @@ export default function MINT() {
   });
   const [fileURL, setFileURL] = useState();
   const [message, updateMessage] = useState("");
-  const [btn, setBtn] = useState(false);
+  const [btnDisabled, setBtnDisabled] = useState(true);
   const [btnContent, setBtnContent] = useState("List NFT");
   const router = useRouter();
   const { isConnected, signer } = useContext(WalletContext);
@@ -28,18 +25,25 @@ export default function MINT() {
   async function onFileChange(e) {
     try {
       const file = e.target.files[0];
+      if (!file) return;
+      
       const data = new FormData();
       data.set("file", file);
-      setBtn(false);
+
+      setBtnDisabled(true);
       updateMessage("Uploading image... Please don't click anything!");
+
       const response = await uploadFileToIPFS(data);
-      if (response.success === true) {
-        setBtn(true);
+      if (response.success) {
+        setBtnDisabled(false);
         updateMessage("");
         setFileURL(response.pinataURL);
+      } else {
+        updateMessage("Error uploading image.");
       }
     } catch (e) {
-      console.log("Error during file upload...", e);
+      console.error("Error during file upload:", e);
+      updateMessage("Error during file upload.");
     }
   }
 
@@ -47,7 +51,7 @@ export default function MINT() {
     const { name, description, price } = formParams;
     if (!name || !description || !price || !fileURL) {
       updateMessage("Please fill all the fields!");
-      return -1;
+      return null;
     }
 
     const nftJSON = {
@@ -59,21 +63,28 @@ export default function MINT() {
 
     try {
       const response = await uploadJSONToIPFS(nftJSON);
-      if (response.success === true) {
+      if (response.success) {
         return response.pinataURL;
+      } else {
+        updateMessage("Error uploading metadata.");
+        return null;
       }
     } catch (e) {
-      console.log("Error uploading JSON metadata: ", e);
+      console.error("Error uploading JSON metadata:", e);
+      updateMessage("Error uploading metadata.");
+      return null;
     }
   }
 
   async function listNFT(e) {
+    e.preventDefault(); // Prevent form submission
+
     try {
       setBtnContent("Processing...");
       const metadataURL = await uploadMetadataToIPFS();
-      if (metadataURL === -1) return;
+      if (!metadataURL) return;
 
-      updateMessage("Uploading NFT...Please dont click anythying!");
+      updateMessage("Uploading NFT... Please don't click anything!");
 
       let contract = new ethers.Contract(
         marketplace.address,
@@ -86,87 +97,87 @@ export default function MINT() {
       await transaction.wait();
 
       setBtnContent("List NFT");
-      setBtn(false);
+      setBtnDisabled(true);
       updateMessage("");
       updateFormParams({ name: "", description: "", price: "" });
       alert("Successfully listed your NFT!");
       router.push("/");
     } catch (e) {
-      alert("Upload error", e);
+      alert("Upload error: " + e.message);
+      console.error("Error listing NFT:", e);
     }
   }
 
   return (
     <div className={styles.container}>
       <Navbar/>
-      <BackgroundBeams/>
       {isConnected ? (
         <div className={styles.innerContainer}>
-  <div className={styles.content}>
-    <h2 className={styles.heading}>Upload your NFT</h2>
-    <div className={styles.Form}>
-      <div className={styles.FormContent}>
-        <label className={styles.Label}>NFT name</label>
-        <input
-          type="text"
-          className={styles.Input}
-          value={formParams.name}
-          onChange={(e) =>
-            updateFormParams({ ...formParams, name: e.target.value })
-          }
-        />
-      </div>
-      <div className={styles.FormContent}>
-        <label className={styles.Label}>NFT description</label>
-        <textarea
-          className={`${styles.Input} ${styles.TextArea}`}
-          value={formParams.description}
-          onChange={(e) =>
-            updateFormParams({
-              ...formParams,
-              description: e.target.value,
-            })
-          }
-        />
-      </div>
-      <div className={styles.FormContent}>
-        <label className={styles.Label}>Price (in Eth)</label>
-        <input
-          type="number"
-          className={styles.Input}
-          value={formParams.price}
-          onChange={(e) =>
-            updateFormParams({ ...formParams, price: e.target.value })
-          }
-        />
-      </div>
-      <div className={styles.FormContent}>
-        <label className={styles.Label}>Upload image</label>
-        <input
-          type="file"
-          className={styles.Input}
-          onChange={onFileChange}
-        />
-      </div>
-      <br />
-      <div className={styles.msg}>{message}</div>
-      <button
-        onClick={listNFT}
-        type="submit"
-        className={
-          btn
-            ? `${styles.btn} ${styles.activebtn}`
-            : `${styles.btn} ${styles.inactivebtn}`
-        }
-      >
-        {btnContent === "Processing..." && (
-          <span className={styles.spinner} />
-        )}
-        {btnContent}
-      </button>
-    </div>
-  </div>
-</div>
+          <div className={styles.content}>
+            <h2 className={styles.heading}>Upload your NFT</h2>
+            <form className={styles.Form} onSubmit={listNFT}>
+              <div className={styles.FormContent}>
+                <label className={styles.Label}>NFT name</label>
+                <input
+                  type="text"
+                  className={styles.Input}
+                  value={formParams.name}
+                  onChange={(e) =>
+                    updateFormParams({ ...formParams, name: e.target.value })
+                  }
+                />
+              </div>
+              <div className={styles.FormContent}>
+                <label className={styles.Label}>NFT description</label>
+                <textarea
+                  className={`${styles.Input} ${styles.TextArea}`}
+                  value={formParams.description}
+                  onChange={(e) =>
+                    updateFormParams({
+                      ...formParams,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className={styles.FormContent}>
+                <label className={styles.Label}>Price (in Eth)</label>
+                <input
+                  type="number"
+                  className={styles.Input}
+                  value={formParams.price}
+                  onChange={(e) =>
+                    updateFormParams({ ...formParams, price: e.target.value })
+                  }
+                />
+              </div>
+              <div className={styles.FormContent}>
+                <label className={styles.Label}>Upload image</label>
+                <input
+                  type="file"
+                  className={styles.Input}
+                  onChange={onFileChange}
+                />
+              </div>
+              <br />
+              <div className={styles.msg}>{message}</div>
+              <button
+                type="submit"
+                className={
+                  btnDisabled
+                    ? `${styles.btn} ${styles.inactivebtn}`
+                    : `${styles.btn} ${styles.activebtn}`
+                }
+                disabled={btnDisabled}
+              >
+                {btnContent === "Processing..." && (
+                  <span className={styles.spinner} />
+                )}
+                {btnContent}
+              </button>
+            </form>
+          </div>
+        </div>
       ) : (
         <div className={styles.innerContainer}>
           <div className={styles.notConnected}>

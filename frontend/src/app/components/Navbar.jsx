@@ -82,7 +82,7 @@ const Navbar = ({ className }) => {
             </li>
             <li>
               <Link
-                href="#"
+                href="/marketplace"
                 className="text-base font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 MARKETPLACE
