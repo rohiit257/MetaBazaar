@@ -2,7 +2,7 @@
 import { WalletContext } from "@/context/wallet";
 import { useParams, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import MarketplaceJson from "../../marketplace.json";
+import MarketplaceJson from "../../marketplace.json"
 import { ethers } from "ethers";
 import axios from "axios";
 import GetIpfsUrlFromPinata from "@/app/utils";
@@ -17,6 +17,8 @@ export default function NFTPage() {
   const [btnContent, setBtnContent] = useState("Buy NFT");
   const { isConnected, userAddress, signer } = useContext(WalletContext);
   const router = useRouter();
+
+ 
 
   // Fetch NFT Data
   async function getNFTData() {
@@ -91,6 +93,10 @@ export default function NFTPage() {
       const salePrice = ethers.parseUnits(item.price, "ether");
       setBtnContent("Processing...");
       setMsg("Buying the NFT... Please Wait (Up to 5 mins)");
+
+      if (typeof contract.sellNFT !== 'function') {
+        throw new Error("sellNFT function is not available in the contract.");
+      }
 
       let transaction = await contract.sellNFT(tokenId, { value: salePrice });
       await transaction.wait();
