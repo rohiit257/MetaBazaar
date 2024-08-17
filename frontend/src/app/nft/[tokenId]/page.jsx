@@ -128,7 +128,7 @@ export default function NFTPage() {
             <div className="mt-6 md:mt-0 md:ml-8 flex flex-col md:w-1/2">
               <div className="text-gray-700">
                 <div className="text-sm font-semibold text-gray-500">Name:</div>
-                <h1 className="text-3xl font-semibold text-slate-300">{item?.name || "Name not available"} #{item.tokenId}</h1>
+                <h1 className="text-3xl font-semibold text-slate-300">{item?.name || "Name not available"} #{item?.tokenId}</h1>
                 <div className="my-4">
                   <div className="text-sm font-semibold text-gray-500">Description:</div>
                   <p className="leading-relaxed text-gray-600">{item?.description || "Description not available"}</p>
