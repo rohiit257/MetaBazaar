@@ -91,7 +91,13 @@ export default function Home() {
       <Navbar />  
       
       <HeroParallax products={products}/>    
+
+      
+
+      
       <div className="m-8 p-8">
+
+        
         
         
 

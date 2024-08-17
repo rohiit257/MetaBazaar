@@ -149,7 +149,7 @@ export default function NFTPage() {
                 </div>
               </div>
               <div className="mt-6 flex flex-col items-start">
-                <div className="text-red-500 mb-2">{msg}</div>
+                <div className="text-slate-300 mb-2">{msg}</div>
                 {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
                   <div className="text-pink-300">You already own this NFT!</div>
                 ) : (
@@ -167,7 +167,7 @@ export default function NFTPage() {
             </div>
           </div>
         ) : (
-          <div className="text-center text-red-500">You are not connected...</div>
+          <div className="text-center text-slate-300">You are not connected...</div>
         )}
       </div>
     </div>
