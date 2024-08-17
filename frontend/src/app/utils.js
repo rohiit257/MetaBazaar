@@ -1,6 +1,19 @@
 export default function GetIpfsUrlFromPinata(pinataUrl) {
-  let IPFSUrl = pinataUrl.split("/");
-  const lastIndex = IPFSUrl.length;
-  IPFSUrl = "https://ipfs.io/ipfs/" + IPFSUrl[lastIndex - 1];
-  return IPFSUrl;
+  try {
+    // Parse the URL and extract the CID
+    const url = new URL(pinataUrl);
+    const pathParts = url.pathname.split('/');
+
+    // Ensure there's an IPFS CID at the end of the path
+    const cid = pathParts[pathParts.length - 1];
+    if (!cid) {
+      throw new Error('Invalid Pinata URL: CID not found');
+    }
+
+    // Return the IPFS gateway URL
+    return `https://ipfs.io/ipfs/${cid}`;
+  } catch (error) {
+    console.error(error.message);
+    return ''; // Return an empty string or a default URL if an error occurs
+  }
 }

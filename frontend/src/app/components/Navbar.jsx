@@ -5,6 +5,7 @@ import Link from "next/link";
 import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
 import MINT from "../mint/page";
+import { FlipWords } from "./ui/flip-words";
 
 const Navbar = ({ className }) => {
   const {
@@ -67,7 +68,7 @@ const Navbar = ({ className }) => {
             </svg>
           </span>
           <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">
-            METABAZAAR
+            <FlipWords words={["METABAZAAR","METABAZAAR"]} duration={1} />
           </span>
         </div>
         <div className="hidden lg:block">

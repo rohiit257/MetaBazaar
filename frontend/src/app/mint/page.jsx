@@ -7,6 +7,8 @@ import { ethers } from "ethers";
 import { WalletContext } from "@/context/wallet";
 import { useState, useContext } from "react";
 import Navbar from "../components/Navbar";
+import { Vortex } from "../components/ui/vortex";
+import { LampContainer } from "../components/ui/lamp";
 
 export default function MINT() {
   const [formParams, updateFormParams] = useState({
@@ -109,17 +111,20 @@ export default function MINT() {
 
   return (
     <div className="relative flex flex-col min-h-screen font-space-mono">
+      
       {/* Background Image Container */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url('https://i.pinimg.com/564x/c0/b9/d2/c0b9d236564328481bb78901ccda6beb.jpg')`,
-          backgroundRepeat: 'repeat', // Repeat the image
-          backgroundSize: '500px 500px', // Adjust the size of the image
-          zIndex: -1,
-        }}
+        // style={{
+        //   backgroundImage: `url('https://i.pinimg.com/564x/c0/b9/d2/c0b9d236564328481bb78901ccda6beb.jpg')`,
+        //   backgroundRepeat: 'repeat', // Repeat the image
+        //   backgroundSize: '500px 500px', // Adjust the size of the image
+        //   zIndex: -1,
+        // }}
       ></div>
       <Navbar />
+      <Vortex/>
+   
       {isConnected ? (
         <div className="flex-1 flex items-center justify-center p-4 relative">
           <div className="max-w-md w-full bg-black p-8 rounded-lg shadow-lg">
