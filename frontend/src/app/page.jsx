@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import { FlipWords } from "./components/ui/flip-words";
 import { HeroParallax } from "./components/ui/hero-parallax";
+import { Timeline } from "./components/ui/timeline";
 
 
 
@@ -86,11 +87,18 @@ export default function Home() {
    
     // Add more products as needed
   ];
+
+  const timelineData = [
+    { title: "Started project", content: "Inception of the Aceternity project." },
+    { title: "First prototype", content: "Built the first prototype within 3 months." },
+    { title: "Launch", content: "Released Aceternity to the public." },
+  ];
   return (
     <>
       <Navbar />  
       
       <HeroParallax products={products}/>    
+      <Timeline data={timelineData}/>
 
       
 

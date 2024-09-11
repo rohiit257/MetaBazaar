@@ -8,6 +8,7 @@ module.exports = {
     sepolia: {
       url: process.env.ALCHEMY_API_URL,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 10000,
     },
   },
 };

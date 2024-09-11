@@ -19,8 +19,6 @@ export default function NFTPage() {
   const router = useRouter();
 
  
-
-  // Fetch NFT Data
   async function getNFTData() {
     if (!signer || !tokenId) return;
 
@@ -31,26 +29,23 @@ export default function NFTPage() {
     );
 
     try {
-      // Fetch tokenURI from contract
       let tokenURI = await contract.tokenURI(tokenId);
-      console.log("Token URI:", tokenURI); // Debug log
+      console.log("Token URI:", tokenURI); 
       tokenURI = GetIpfsUrlFromPinata(tokenURI);
 
-      // Fetch metadata from IPFS
       const metaResponse = await axios.get(tokenURI);
       const meta = metaResponse.data;
-      console.log("Metadata:", meta); // Debug log
+      console.log("Metadata:", meta);
 
-      // Fetch listing from contract
       const listedToken = await contract.getNFTListing(tokenId);
-      console.log("Listed Token:", listedToken); // Debug log
+      console.log("Listed Token:", listedToken);
 
-      // Format data
       const item = {
         price: ethers.formatEther(listedToken.price),
         tokenId,
         seller: listedToken.seller,
         owner: listedToken.owner,
+        creator: listedToken.creator,  // Add creator
         image: meta.image,
         name: meta.name,
         description: meta.description,
@@ -146,6 +141,14 @@ export default function NFTPage() {
                 <div className="my-4">
                   <div className="text-sm font-semibold text-gray-500">Seller:</div>
                   <p className="text-gray-600">{item?.seller || "Seller not available"}</p>
+                </div>
+                <div className="my-4">
+                  <div className="text-sm font-semibold text-gray-500">Creator:</div>
+                  <p className="text-gray-600">{item?.creator || "Creator not available"}</p>
+                </div>
+                <div className="my-4">
+                  <div className="text-sm font-semibold text-gray-500">Royalty:</div>
+                  <p className="text-gray-600">5% (Fixed)</p>
                 </div>
               </div>
               <div className="mt-6 flex flex-col items-start">

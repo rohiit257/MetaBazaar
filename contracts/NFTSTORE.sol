@@ -2,11 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract NFTSTORE is ERC721URIStorage {
     address payable public marketplaceOwner;
     uint256 public listingFeePercent = 20;
+    uint256 public royaltyPercent = 5;  // Added this line for adjustable royalty
     uint256 private currentTokenId;
     uint256 private totalItemsSold;
 
@@ -14,13 +15,14 @@ contract NFTSTORE is ERC721URIStorage {
         uint256 tokenId;
         address payable owner;
         address payable seller;
+        address payable creator;
         uint256 price;
     }
 
     mapping (uint256 => nftListing) private tokenIdToListing;
 
     modifier onlyMarketplaceOwner {
-        require(msg.sender == marketplaceOwner,"Only Owner Can Access This");
+        require(msg.sender == marketplaceOwner, "Only Owner Can Access This");
         _;
     }
 
@@ -37,6 +39,14 @@ contract NFTSTORE is ERC721URIStorage {
         return listingFeePercent;
     }
 
+    function updateRoyaltyPercent(uint256 _royaltyPercent) public onlyMarketplaceOwner {
+        royaltyPercent = _royaltyPercent;
+    }
+
+    function getRoyaltyPercent() public view returns (uint256) {
+        return royaltyPercent;
+    }
+
     function getCurrentTokenId() public view returns (uint256) {
         return currentTokenId;
     }
@@ -51,6 +61,7 @@ contract NFTSTORE is ERC721URIStorage {
             tokenId: _tokenId,
             owner: payable(msg.sender),
             seller: payable(msg.sender),
+            creator: payable(msg.sender),
             price: _price
         });
     }
@@ -72,16 +83,30 @@ contract NFTSTORE is ERC721URIStorage {
         nftListing storage listing = tokenIdToListing[tokenId];
         uint256 price = listing.price;
         address payable seller = listing.seller;
+        address payable creator = listing.creator;
 
         require(msg.value == price, "Please pay the asking price");
-        listing.seller = payable(msg.sender);
-        totalItemsSold++;
 
+        // Calculate the royalty
+        uint256 royalty = (price * royaltyPercent) / 100;
+
+        // Update the seller to the buyer
+        listing.seller = payable(msg.sender);
+
+        // Transfer the NFT to the buyer
         _transfer(listing.owner, msg.sender, tokenId);
 
+        // Transfer the marketplace listing fee to the marketplace owner
         uint256 listingFee = (price * listingFeePercent) / 100;
         marketplaceOwner.transfer(listingFee);
-        seller.transfer(msg.value - listingFee);
+
+        // Transfer the royalty to the creator
+        creator.transfer(royalty);
+
+        // Transfer the remaining amount to the seller
+        seller.transfer(msg.value - listingFee - royalty);
+
+        totalItemsSold++;
     }
 
     function getAllListedNFTs() public view returns (nftListing[] memory) {
