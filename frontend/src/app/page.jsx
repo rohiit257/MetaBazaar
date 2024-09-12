@@ -1,6 +1,8 @@
 import Navbar from "./components/Navbar";
+import { FeaturesSectionDemo } from "./components/ui/bento-grid";
 import { FlipWords } from "./components/ui/flip-words";
 import { HeroParallax } from "./components/ui/hero-parallax";
+import { MenuItem, ProductItem } from "./components/ui/navbar-menu";
 import { Timeline } from "./components/ui/timeline";
 
 
@@ -98,7 +100,8 @@ export default function Home() {
       <Navbar />  
       
       <HeroParallax products={products}/>    
-      <Timeline data={timelineData}/>
+      <FeaturesSectionDemo/>
+      {/* <Timeline data={timelineData}/> */}
 
       
 
