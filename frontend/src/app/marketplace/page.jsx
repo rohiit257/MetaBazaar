@@ -76,17 +76,19 @@ export default function Marketplace() {
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];
 
-  // Sort items based on sort option
-  const sortedItems = filteredItems.sort((a, b) => {
-    if (sortOption === "low-high") {
-      return a.price - b.price; // Sort by price (low to high)
-    } else if (sortOption === "high-low") {
-      return b.price - a.price; // Sort by price (high to low)
-    } else if (sortOption === "newest") {
-      return new Date(b.dateListed) - new Date(a.dateListed); // Sort by newest
-    }
-    return 0; // Default
-  });
+ // Sort items based on sort option
+const sortedItems = filteredItems.sort((a, b) => {
+  if (sortOption === "low-high") {
+    return a.price - b.price; // Sort by price (low to high)
+  } else if (sortOption === "high-low") {
+    return b.price - a.price; // Sort by price (high to low)
+  } else if (sortOption === "newest") {
+    // Ensure `dateListed` is in a comparable format
+    return new Date(b.dateListed) - new Date(a.dateListed); // Sort by newest first
+  }
+  return 0; // Default
+});
+
 
   return (
     <div className="min-h-screen bg-black">

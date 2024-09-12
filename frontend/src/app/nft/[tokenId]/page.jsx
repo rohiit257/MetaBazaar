@@ -160,8 +160,8 @@ export default function NFTPage() {
                 </div>
                 <p className="text-xl font-bold text-gray-600">{item?.price || "Price not available"} ETH</p>
 
-                {item?.owner === userAddress ? (
-                  <p className="mt-4 text-green-500 font-semibold">You already own this NFT.</p>
+                {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
+                  <p className="mt-4 text-pink-400 font-semibold">You already own this NFT.</p>
                 ) : (
                   <button
                     onClick={buyNFT}
@@ -191,8 +191,16 @@ export default function NFTPage() {
                   </form>
                 </div>
 
-                {/* Reviews Section */}
-                <div className="mt-8">
+                
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center text-slate-300">You are not connected...</div>
+        )}
+      </div>
+      {/* Reviews Section */}
+      <div className="mt-8 p-7 m-7">
                   <h2 className="text-2xl font-semibold text-slate-300">Reviews</h2>
                   {reviews.length > 0 ? (
                     reviews.map((r, index) => (
@@ -205,13 +213,6 @@ export default function NFTPage() {
                     <p className="text-gray-500">No reviews yet.</p>
                   )}
                 </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center text-slate-300">You are not connected...</div>
-        )}
-      </div>
     </div>
   );
 }
