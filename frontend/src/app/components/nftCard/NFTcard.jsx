@@ -11,14 +11,14 @@ export default function NFTCard({ item }) {
       : item.description;
 
   return (
-    <Link href={`/nft/${item.tokenId}`} className="block w-[300px] rounded-md bg-zinc-900 border-zinc-900 hover:bg-zinc-800 transition-colors">
-      <div className="relative">
+    <Link href={`/nft/${item.tokenId}`} className=" block w-[300px] rounded-md bg-zinc-900 border-zinc-900 hover:bg-zinc-800 transition-colors">
+      <div className="relative ">
         <Image
           src={IPFSUrl}
           alt={item.name}
           width={300}
           height={200}
-          className="h-[200px] w-full rounded-md object-cover"
+          className="h-[200px] w-full object-cover rounded-md "
         />
       </div>
       <div className="p-4">
