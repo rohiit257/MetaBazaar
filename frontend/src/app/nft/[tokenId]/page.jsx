@@ -2,7 +2,7 @@
 import { WalletContext } from "@/context/wallet";
 import { useParams, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import MarketplaceJson from "../../marketplace.json"
+import MarketplaceJson from "../../marketplace.json";
 import { ethers } from "ethers";
 import axios from "axios";
 import GetIpfsUrlFromPinata from "@/app/utils";
@@ -18,7 +18,11 @@ export default function NFTPage() {
   const { isConnected, userAddress, signer } = useContext(WalletContext);
   const router = useRouter();
 
- 
+  // Review state
+  const [review, setReview] = useState("");
+  const [reviews, setReviews] = useState([]); // To store all reviews for this NFT
+
+  // Fetch NFT data
   async function getNFTData() {
     if (!signer || !tokenId) return;
 
@@ -30,22 +34,19 @@ export default function NFTPage() {
 
     try {
       let tokenURI = await contract.tokenURI(tokenId);
-      console.log("Token URI:", tokenURI); 
       tokenURI = GetIpfsUrlFromPinata(tokenURI);
 
       const metaResponse = await axios.get(tokenURI);
       const meta = metaResponse.data;
-      console.log("Metadata:", meta);
 
       const listedToken = await contract.getNFTListing(tokenId);
-      console.log("Listed Token:", listedToken);
 
       const item = {
         price: ethers.formatEther(listedToken.price),
         tokenId,
         seller: listedToken.seller,
         owner: listedToken.owner,
-        creator: listedToken.creator,  // Add creator
+        creator: listedToken.creator,
         image: meta.image,
         name: meta.name,
         description: meta.description,
@@ -57,17 +58,25 @@ export default function NFTPage() {
     }
   }
 
-  // Fetch data on mount and when dependencies change
+  // Fetch reviews for the NFT
+  async function fetchReviews() {
+    try {
+      const response = await axios.get(`/api/get_reviews?tokenId=${tokenId}`);
+      setReviews(response.data);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  }
+
   useEffect(() => {
     async function fetchData() {
       if (!isConnected || !signer) return;
 
       try {
         const itemTemp = await getNFTData();
-        console.log("Fetched itemTemp:", itemTemp); // Debug log
         setItem(itemTemp);
+        await fetchReviews(); // Fetch reviews after fetching the NFT data
       } catch (error) {
-        console.error("Error in fetchData:", error);
         setItem(null);
       }
     }
@@ -101,9 +110,26 @@ export default function NFTPage() {
       setBtnContent("Buy NFT");
       router.push("/");
     } catch (e) {
-      console.log("Buying Error:", e);
       setMsg("Error buying NFT.");
       setBtnContent("Buy NFT");
+    }
+  }
+
+  // Handle review submission
+  async function submitReview(e) {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("/api/add_review", {
+        tokenId,
+        userAddress,
+        review,
+      });
+      setReview(""); // Clear the review input
+      setMsg("Review submitted successfully!");
+      fetchReviews(); // Fetch updated reviews
+    } catch (error) {
+      setMsg("Error submitting review.");
     }
   }
 
@@ -128,44 +154,57 @@ export default function NFTPage() {
             </div>
             <div className="mt-6 md:mt-0 md:ml-8 flex flex-col md:w-1/2">
               <div className="text-gray-700">
-                <div className="text-sm font-semibold text-gray-500">Name:</div>
                 <h1 className="text-3xl font-semibold text-slate-300">{item?.name || "Name not available"} #{item?.tokenId}</h1>
                 <div className="my-4">
-                  <div className="text-sm font-semibold text-gray-500">Description:</div>
                   <p className="leading-relaxed text-gray-600">{item?.description || "Description not available"}</p>
                 </div>
-                <div className="my-4">
-                  <div className="text-sm font-semibold text-gray-500">Price:</div>
-                  <p className="text-xl font-bold text-gray-600">{item?.price || "Price not available"} ETH</p>
-                </div>
-                <div className="my-4">
-                  <div className="text-sm font-semibold text-gray-500">Seller:</div>
-                  <p className="text-gray-600">{item?.seller || "Seller not available"}</p>
-                </div>
-                <div className="my-4">
-                  <div className="text-sm font-semibold text-gray-500">Creator:</div>
-                  <p className="text-gray-600">{item?.creator || "Creator not available"}</p>
-                </div>
-                <div className="my-4">
-                  <div className="text-sm font-semibold text-gray-500">Royalty:</div>
-                  <p className="text-gray-600">5% (Fixed)</p>
-                </div>
-              </div>
-              <div className="mt-6 flex flex-col items-start">
-                <div className="text-slate-300 mb-2">{msg}</div>
-                {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
-                  <div className="text-pink-300">You already own this NFT!</div>
+                <p className="text-xl font-bold text-gray-600">{item?.price || "Price not available"} ETH</p>
+
+                {item?.owner === userAddress ? (
+                  <p className="mt-4 text-green-500 font-semibold">You already own this NFT.</p>
                 ) : (
                   <button
                     onClick={buyNFT}
                     className="mt-4 rounded-md bg-sky-300 px-4 py-2 text-black font-semibold shadow-sm hover:bg-sky-400"
                   >
-                    {btnContent === "Processing..." && (
-                      <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full inline-block mr-2"></span>
-                    )}
                     {btnContent}
                   </button>
                 )}
+
+                {/* Review Form */}
+                <div className="mt-8">
+                  <h2 className="text-2xl font-semibold text-slate-300">Leave a Review</h2>
+                  <form onSubmit={submitReview} className="flex flex-col mt-4">
+                    <textarea
+                      className="p-2 border border-zinc-800 rounded-md text-slate-300 bg-black"
+                      value={review}
+                      onChange={(e) => setReview(e.target.value)}
+                      placeholder="Write your review here"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="mt-4 rounded-md bg-sky-300 px-4 py-2 text-black font-semibold shadow-sm hover:bg-sky-400"
+                    >
+                      Submit Review
+                    </button>
+                  </form>
+                </div>
+
+                {/* Reviews Section */}
+                <div className="mt-8">
+                  <h2 className="text-2xl font-semibold text-slate-300">Reviews</h2>
+                  {reviews.length > 0 ? (
+                    reviews.map((r, index) => (
+                      <div key={index} className="mt-4 border-t border-zinc-800 pt-4">
+                        <p className="text-gray-500">{r.userAddress}</p>
+                        <p className="text-slate-300">{r.review}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No reviews yet.</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
