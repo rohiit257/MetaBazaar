@@ -100,7 +100,7 @@ export default function Home() {
       <Navbar />  
       
       <HeroParallax products={products}/>    
-      <FeaturesSectionDemo/>
+      <FeaturesSectionDemo />
       {/* <Timeline data={timelineData}/> */}
 
       
