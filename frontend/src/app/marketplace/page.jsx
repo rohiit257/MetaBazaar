@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
 import NFTCard from "../components/nftCard/NFTCard";
-import NFTTable from "../components/nftTable/NFTTable"; // Import NFTTable component
+import NFTTable from "../components/nftTable/NFTTable";
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
@@ -12,11 +12,11 @@ import { useRouter } from 'next/navigation';
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
-  const [sortOption, setSortOption] = useState(""); // State for sorting option
-  const [viewMode, setViewMode] = useState("card"); // State for toggle (card or table view)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("");
+  const [viewMode, setViewMode] = useState("table");
   const { isConnected, signer } = useContext(WalletContext);
-  const router = useRouter(); // Hook for navigation
+  const router = useRouter();
 
   async function getNFTitems() {
     const itemsArray = [];
@@ -38,20 +38,18 @@ export default function Marketplace() {
         try {
           const { data: meta } = await axios.get(tokenURI);
           const price = ethers.formatEther(i.price);
-
-          // Assuming reviews are part of the metadata or fetched from another source
-          const reviews = meta.reviews || 0; // Default to 0 reviews if not present
+          const reviews = meta.reviews || 0;
 
           const item = {
-            price: parseFloat(price), // Ensure price is a number for sorting
+            price: parseFloat(price),
             tokenId,
             seller: i.seller,
             owner: i.owner,
             image: meta.image,
             name: meta.name,
             description: meta.description,
-            dateListed: i.dateListed, // Assuming you have a date field
-            reviews, // Adding reviews to the item object
+            dateListed: i.dateListed,
+            reviews,
           };
 
           itemsArray.push(item);
@@ -84,7 +82,6 @@ export default function Marketplace() {
     fetchData();
   }, [isConnected]);
 
-  // Filter items based on search query
   const filteredItems = items
     ? items.filter(
         (item) =>
@@ -93,18 +90,17 @@ export default function Marketplace() {
       )
     : [];
 
-  // Sort items based on sort option
   const sortedItems = filteredItems.sort((a, b) => {
     if (sortOption === "low-high") {
-      return a.price - b.price; // Sort by price (low to high)
+      return a.price - b.price;
     } else if (sortOption === "high-low") {
-      return b.price - a.price; // Sort by price (high to low)
+      return b.price - a.price;
     } else if (sortOption === "newest") {
-      return new Date(b.dateListed) - new Date(a.dateListed); // Sort by newest
+      return new Date(b.dateListed) - new Date(a.dateListed);
     } else if (sortOption === "most-reviewed") {
-      return b.reviews - a.reviews; // Sort by most reviewed
+      return b.reviews - a.reviews;
     }
-    return 0; // Default
+    return 0;
   });
 
   return (
@@ -115,20 +111,20 @@ export default function Marketplace() {
           {isConnected ? (
             <>
               <div className="flex justify-center items-center space-x-4 max-w-xs mx-auto mb-4 font-space-mono">
-                {/* Toggle Button */}
-                <label className="inline-flex items-center cursor-pointer">
+                {/* Toggle Slider */}
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     className="sr-only peer"
                     onChange={(e) =>
-                      setViewMode(e.target.checked ? "table" : "card")
+                      setViewMode(e.target.checked ? "card" : "table")
                     }
                   />
-                  <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 rounded-full peer dark:bg-gray-700 peer-checked:bg-pink-400">
-                  
+                  <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:bg-pink-400 peer-focus:ring-4 peer-focus:ring-pink-300 transition-all relative">
+                    <span className="absolute w-5 h-5 bg-white rounded-full top-0.5 left-[2px] transition-all transform peer-checked:translate-x-full"></span>
                   </div>
-                  <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                  {viewMode === "card" ? "Card" : "Table"}
+                  <span className="ms-3 text-sm font-medium text-slate-300">
+                    {viewMode === "card" ? "Table" : "Card"}
                   </span>
                 </label>
 
@@ -162,10 +158,8 @@ export default function Marketplace() {
                   <option value="">Sort By Price</option>
                   <option value="low-high">Price: Low to High</option>
                   <option value="high-low">Price: High to Low</option>
-                  <option value="newest">Newest</option>
-                  <option value="most-reviewed">Most Reviewed</option>
+                  
                 </select>
-               
               </div>
 
               {/* Display NFTs */}
@@ -177,7 +171,7 @@ export default function Marketplace() {
                     ))}
                   </div>
                 ) : (
-                  <NFTTable items={sortedItems} /> // Tabular View
+                  <NFTTable items={sortedItems} />
                 )
               ) : (
                 <div className="text-center text-gray-500">

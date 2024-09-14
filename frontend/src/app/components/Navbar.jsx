@@ -48,7 +48,7 @@ const Navbar = ({ className }) => {
 
   return (
     <div
-      className={`sticky top-0 z-50 w-full bg-zinc-950 shadow-md ${className} border-b border-zinc-800`}
+      className={`sticky top-0 z-50 w-full bg-zinc-950 shadow-md ${className} border-b border-zinc-900`}
     >
       <div className="mt-1 mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         <div className="inline-flex items-center space-x-2">
@@ -62,7 +62,7 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="/"
-                className="text-sm font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
               >
                 HOME
               </Link>
@@ -70,7 +70,7 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="/marketplace"
-                className="text-sm font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
               >
                 MARKETPLACE
               </Link>
@@ -78,7 +78,7 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="/mint"
-                className="text-sm font-semibold text-pink-400 hover:text-sky-300 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
               >
                 MINT
               </Link>
@@ -86,7 +86,7 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="/profile"
-                className="text-sm font-semibold text-slate-300 hover:text-pink-400 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
               >
                 PROFILE
               </Link>
