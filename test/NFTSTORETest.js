@@ -65,6 +65,66 @@ describe("Creating NFTs", function () {
   });
 });
 
+describe("Trading NFTs", function () {
+  beforeEach(async function () {
+    // Creating an NFT for the owner before each test
+    const tokenURI = "https://example.com/nft";
+    const price = ethers.parseEther("1");
+
+    await NFTSTORE.createToken(tokenURI, price); // Creates token with tokenId 1
+  });
+
+  it("Should allow the owner to trade their NFT to another user", async function () {
+    // Owner trades NFT to addr1
+    await NFTSTORE.tradeNFT(addr1.address, 1);
+
+    // Check that the new owner of the NFT is addr1
+    const newOwner = await NFTSTORE.ownerOf(1);
+    expect(newOwner).to.equal(addr1.address);
+  });
+
+  it("Should revert if the sender is not the owner of the NFT", async function () {
+    // Attempt to trade by addr1, who is not the owner
+    await expect(
+      NFTSTORE.connect(addr1).tradeNFT(addr2.address, 1)
+    ).to.be.revertedWith("You are not the owner of this NFT");
+  });
+
+  it("Should revert if the recipient address is invalid", async function () {
+    // Attempt to trade to an invalid (zero) address
+    await expect(
+      NFTSTORE.tradeNFT(ethers.constants.AddressZero, 1)
+    ).to.be.revertedWith("Invalid recipient address");
+  });
+
+  it("Should update the listing owner and seller after the trade", async function () {
+    // Owner trades NFT to addr1
+    await NFTSTORE.tradeNFT(addr1.address, 1);
+
+    // Fetch the listing to check that owner and seller are updated
+    const listing = await NFTSTORE.getNFTListing(1);
+    expect(listing.owner).to.equal(addr1.address);
+    expect(listing.seller).to.equal(addr1.address);
+  });
+
+  it("Should retain NFT details after trade", async function () {
+    // Fetch initial listing details
+    const initialListing = await NFTSTORE.getNFTListing(1);
+
+    // Owner trades NFT to addr1
+    await NFTSTORE.tradeNFT(addr1.address, 1);
+
+    // Fetch listing details after trade
+    const postTradeListing = await NFTSTORE.getNFTListing(1);
+
+    // Ensure that the NFT details remain the same (except owner/seller)
+    expect(postTradeListing.tokenId).to.equal(initialListing.tokenId);
+    expect(postTradeListing.price).to.equal(initialListing.price);
+    expect(postTradeListing.tokenURI).to.equal(initialListing.tokenURI);
+  });
+});
+
+
 describe("Executing Sales", function () {
   beforeEach(async function () {
     const tokenURI = "https://example.com/nft";

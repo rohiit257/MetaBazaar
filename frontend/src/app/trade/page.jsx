@@ -1,61 +1,122 @@
-import React from 'react';
-import Navbar from '../components/Navbar';
-import { FlipWords } from '../components/ui/flip-words';
+"use client";
 
-function Page() {
+import { useState, useContext } from "react";
+import { useRouter } from "next/navigation";
+import { ethers } from "ethers";
+import marketplace from "./../marketplace.json";
+import { WalletContext } from "@/context/wallet";
+import Navbar from "../components/Navbar";
+
+export default function TRADE() {
+  const [formParams, updateFormParams] = useState({
+    userId: "",
+    nftTokenId: "",
+  });
+  const [message, updateMessage] = useState("");
+  const [btnDisabled, setBtnDisabled] = useState(false);
+  const [btnContent, setBtnContent] = useState("TRADE NFT");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { isConnected, signer } = useContext(WalletContext);
+
+  async function tradeNFT(e) {
+    e.preventDefault(); // Prevent form submission
+
+    const { userId, nftTokenId } = formParams;
+    if (!userId || !nftTokenId) {
+      updateMessage("Please fill all the fields!");
+      return;
+    }
+
+    try {
+      setBtnContent("Processing...");
+      setLoading(true);
+
+      let contract = new ethers.Contract(
+        marketplace.address,
+        marketplace.abi,
+        signer
+      );
+
+      // Assuming there is a method in your contract for transferring NFTs
+      let transaction = await contract.tradeNFT(userId, nftTokenId);
+      await transaction.wait();
+
+      setBtnContent("TRADE NFT");
+      setBtnDisabled(false);
+      setLoading(false);
+      updateMessage("");
+      updateFormParams({ userId: "", nftTokenId: "" });
+      alert("Successfully traded the NFT!");
+      router.push("/marketplace");
+    } catch (e) {
+      alert("Trade error: " + e.message);
+      console.error("Error trading NFT:", e);
+      setBtnContent("TRADE NFT");
+      setLoading(false);
+    }
+  }
+
   return (
-    <>
+    <div className="relative flex flex-col min-h-screen font-space-mono">
       <Navbar />
-      <div className="relative w-full bg-zinc-950 font-space-mono overflow-hidden">
-        <div className="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
-          <div className="flex flex-col justify-center px-4 py-12 md:py-16 lg:col-span-7 lg:gap-x-6 lg:px-6 lg:py-24 xl:col-span-6">
-            <h1 className="mt-8 text-3xl font-bold tracking-tight text-slate-300 md:text-4xl lg:text-6xl">
-              Trade with Users Around the Globe <FlipWords words={['Fast', 'Seamless']} />
-            </h1>
-            <p className="mt-8 text-lg text-gray-700">
-              Trade your NFTs with ease. Enter the details below to start trading.
-            </p>
-            <form action="" className="mt-8 flex flex-col space-y-4">
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="userId" className="text-sm font-medium text-gray-700">User ID</label>
+      
+      {isConnected ? (
+        <div className="flex-1 flex items-center justify-center p-4 relative">
+          <div className="max-w-md w-full bg-zinc-950 p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-6 text-slate-300">TRADE YOUR NFT</h2>
+            <form className="space-y-4" onSubmit={tradeNFT}>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-slate-300">
+                  USER ID
+                </label>
                 <input
-                  className="flex w-full rounded-md border border-black/30 bg-transparent px-3 py-2 text-sm placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-black/30 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                   type="text"
-                  placeholder="Enter your user ID"
-                  id="userId"
+                  className="block w-full px-3 py-2 bg-black text-white border border-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-sky-300 focus:border-sky-300 sm:text-sm transition-transform hover:scale-105"
+                  value={formParams.userId}
+                  onChange={(e) =>
+                    updateFormParams({ ...formParams, userId: e.target.value })
+                  }
                 />
               </div>
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="nftTokenId" className="text-sm font-medium text-gray-700">NFT Token ID</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-slate-300">
+                  NFT TOKEN ID
+                </label>
                 <input
-                  className="flex w-full rounded-md border border-black/30 bg-transparent px-3 py-2 text-sm placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-black/30 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                   type="text"
-                  placeholder="Enter NFT token ID"
-                  id="nftTokenId"
+                  className="block w-full px-3 py-2 bg-black text-white border border-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-sky-300 focus:border-sky-300 sm:text-sm transition-transform hover:scale-105"
+                  value={formParams.nftTokenId}
+                  onChange={(e) =>
+                    updateFormParams({ ...formParams, nftTokenId: e.target.value })
+                  }
                 />
               </div>
-              <div>
-                <button
-                  type="submit"
-                  className="rounded-md bg-pink-400 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-                >
-                  Trade NFT
-                </button>
-              </div>
+              <div className="text-red-500">{message}</div>
+              <button
+                type="submit"
+                className={`w-full py-2 px-4 rounded-md text-zinc-800 ${
+                  btnDisabled
+                    ? "bg-sky-200 cursor-not-allowed"
+                    : "bg-pink-300 hover:bg-pink-400"
+                }`}
+                disabled={btnDisabled}
+              >
+                {loading && (
+                  <span className="animate-spin h-5 w-5 border-4 border-t-4 rounded-full mr-2 inline-block"></span>
+                )}
+                {btnContent}
+              </button>
             </form>
           </div>
-
-          <div className="relative lg:col-span-5 lg:-mr-8 xl:col-span-6">
-            <img
-              className="m-9aspect-[3/2] bg-gray-50 object-cover lg:aspect-[4/3] lg:h-[700px] xl:aspect-[16/9] w-full h-auto"
-              src="https://plus.unsplash.com/premium_photo-1679079456783-5d862f755557?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjQ3fHxtYW4lMjB3aXRoJTIwbGFwdG9wfGVufDB8fDB8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=60"
-              alt="NFT Trading"
-            />
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center p-4 relative">
+          <div className="font-bold text-lg text-gray-700 bg-black ">
+            CONNECT YOUR WALLET TO CONTINUE......
           </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 }
-
-export default Page;

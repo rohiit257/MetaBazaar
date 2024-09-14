@@ -7,6 +7,8 @@ export default function GetIpfsUrlFromPinata(pinataUrl) {
     // Ensure there's an IPFS CID at the end of the path
     const cid = pathParts[pathParts.length - 1];
     if (!cid) {
+      console.log("inavlid pinata url");
+      
       throw new Error('Invalid Pinata URL: CID not found');
     }
 

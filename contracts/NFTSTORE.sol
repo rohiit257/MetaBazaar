@@ -147,4 +147,16 @@ contract NFTSTORE is ERC721URIStorage {
 
         return myNFTs;
     }
+
+    function tradeNFT(address recipient, uint256 tokenId) public {
+        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
+        require(recipient != address(0), "Invalid recipient address");
+
+        _transfer(msg.sender, recipient, tokenId);
+
+        if (tokenIdToListing[tokenId].price > 0) {
+            tokenIdToListing[tokenId].owner = payable(recipient);
+            tokenIdToListing[tokenId].seller = payable(recipient);
+        }
+}
 }
