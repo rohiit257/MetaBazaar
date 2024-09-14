@@ -79,7 +79,7 @@ export default function Profile() {
   }, [isConnected]);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-zinc-950">
       <Navbar />
       <div className="p-8">
         <div className="container mx-auto">

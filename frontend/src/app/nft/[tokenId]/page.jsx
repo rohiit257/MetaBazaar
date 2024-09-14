@@ -134,7 +134,7 @@ export default function NFTPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-space-mono ">
+    <div className="flex flex-col min-h-screen font-space-mono bg-zinc-950 ">
       <Navbar />
       <div className="flex-1 p-4 md:p-8">
         {isConnected ? (

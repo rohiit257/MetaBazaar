@@ -127,7 +127,7 @@ export default function MINT() {
    
       {isConnected ? (
         <div className="flex-1 flex items-center justify-center p-4 relative">
-          <div className="max-w-md w-full bg-black p-8 rounded-lg shadow-lg">
+          <div className="max-w-md w-full bg-zinc-950 p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6 text-slate-300">MINT YOUT NFT</h2>
             <form className="space-y-4" onSubmit={listNFT}>
               <div className="space-y-1">

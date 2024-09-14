@@ -4,7 +4,6 @@ import { useContext } from "react";
 import Link from "next/link";
 import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
-import MINT from "../mint/page";
 import { FlipWords } from "./ui/flip-words";
 
 const Navbar = ({ className }) => {
@@ -49,22 +48,21 @@ const Navbar = ({ className }) => {
 
   return (
     <div
-      className={`sticky top-0 z-50 w-full bg-black shadow-md ${className} border-b border-zinc-800`}
+      className={`sticky top-0 z-50 w-full bg-zinc-950 shadow-md ${className} border-b border-zinc-800`}
     >
-      <div className="mt-3 mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
+      <div className="mt-1 mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         <div className="inline-flex items-center space-x-2">
-          <span>
-          </span>
+          <span></span>
           <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">
-            <FlipWords words={["METABAZAAR","METABAZAAR"]} duration={1} />
+            <FlipWords words={["METABAZAAR", "METABAZAAR"]} duration={1} />
           </span>
         </div>
         <div className="hidden lg:block">
-          <ul className="inline-flex space-x-8">
-          <li>
+          <ul className="inline-flex space-x-6">
+            <li>
               <Link
                 href="/"
-                className="text-base font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 HOME
               </Link>
@@ -72,15 +70,15 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="/marketplace"
-                className="text-base font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-sky-200 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 MARKETPLACE
               </Link>
             </li>
             <li>
               <Link
-                href=".\mint"
-                className="text-base font-semibold text-pink-400 hover:text-sky-300 font-space-mono tracking-wide"
+                href="/mint"
+                className="text-sm font-semibold text-pink-400 hover:text-sky-300 font-space-mono tracking-wide"
               >
                 MINT
               </Link>
@@ -88,26 +86,34 @@ const Navbar = ({ className }) => {
             <li>
               <Link
                 href="/profile"
-                className="text-base font-semibold text-slate-300 hover:text-pink-400 font-space-mono tracking-wide"
+                className="text-sm font-semibold text-slate-300 hover:text-pink-400 font-space-mono tracking-wide"
               >
                 PROFILE
               </Link>
             </li>
           </ul>
         </div>
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center space-x-4">
           {isConnected ? (
-            <button
-              type="button"
-              className="rounded-md bg-zinc-900 px-3 mb-2 py-2 text-sm font-semibold text-pink-400 shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide "
-            >
-              {truncateAddress(userAddress)}
-            </button>
+            <>
+              <Link
+                href="/trade"
+                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-sky-200 shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
+              >
+                TRADE NFT
+              </Link>
+              <button
+                type="button"
+                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-pink-400 shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
+              >
+                {truncateAddress(userAddress)}
+              </button>
+            </>
           ) : (
             <button
               type="button"
               onClick={connectWallet}
-              className="rounded-md bg-sky-200 px-3 mb-2 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
+              className="rounded-md bg-sky-200 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
             >
               CONNECT WALLET
             </button>
