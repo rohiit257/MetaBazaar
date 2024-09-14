@@ -8,6 +8,7 @@ import NFTTable from "../components/nftTable/NFTTable"; // Import NFTTable compo
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
+import { useRouter } from 'next/navigation';
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
@@ -15,6 +16,7 @@ export default function Marketplace() {
   const [sortOption, setSortOption] = useState(""); // State for sorting option
   const [viewMode, setViewMode] = useState("card"); // State for toggle (card or table view)
   const { isConnected, signer } = useContext(WalletContext);
+  const router = useRouter(); // Hook for navigation
 
   async function getNFTitems() {
     const itemsArray = [];
@@ -160,7 +162,10 @@ export default function Marketplace() {
                   <option value="">Sort By Price</option>
                   <option value="low-high">Price: Low to High</option>
                   <option value="high-low">Price: High to Low</option>
+                  <option value="newest">Newest</option>
+                  <option value="most-reviewed">Most Reviewed</option>
                 </select>
+               
               </div>
 
               {/* Display NFTs */}

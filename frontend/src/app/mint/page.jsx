@@ -102,7 +102,7 @@ export default function MINT() {
       updateMessage("");
       updateFormParams({ name: "", description: "", price: "" });
       alert("Successfully listed your NFT!");
-      router.push("/marketplace");
+      router.push("/profile");
     } catch (e) {
       alert("Upload error: " + e.message);
       console.error("Error listing NFT:", e);

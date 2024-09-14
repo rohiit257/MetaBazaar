@@ -18,6 +18,9 @@ export default function NFTPage() {
   const { isConnected, userAddress, signer } = useContext(WalletContext);
   const router = useRouter();
 
+  // State for royalty
+  const [royalty, setRoyalty] = useState(null);
+
   // Review state
   const [review, setReview] = useState("");
   const [reviews, setReviews] = useState([]); // To store all reviews for this NFT
@@ -76,6 +79,8 @@ export default function NFTPage() {
         const itemTemp = await getNFTData();
         setItem(itemTemp);
         await fetchReviews(); // Fetch reviews after fetching the NFT data
+
+        listenForRoyaltyPaidEvent(); // Listen for royalty event
       } catch (error) {
         setItem(null);
       }
@@ -98,10 +103,6 @@ export default function NFTPage() {
       setBtnContent("Processing...");
       setMsg("Buying the NFT... Please Wait (Up to 5 mins)");
 
-      if (typeof contract.sellNFT !== 'function') {
-        throw new Error("sellNFT function is not available in the contract.");
-      }
-
       let transaction = await contract.sellNFT(tokenId, { value: salePrice });
       await transaction.wait();
 
@@ -109,10 +110,27 @@ export default function NFTPage() {
       setMsg("");
       setBtnContent("Buy NFT");
       router.push("/");
+
     } catch (e) {
       setMsg("Error buying NFT.");
       setBtnContent("Buy NFT");
     }
+  }
+
+  // Listen for the RoyaltyPaid event from the contract
+  async function listenForRoyaltyPaidEvent() {
+    if (!signer) return;
+
+    const contract = new ethers.Contract(
+      MarketplaceJson.address,
+      MarketplaceJson.abi,
+      signer
+    );
+
+    contract.on("RoyaltyPaid", (creator, amount, tokenId) => {
+      const amountInEth = ethers.formatEther(amount);
+      setRoyalty({ creator, amount: amountInEth });
+    });
   }
 
   // Handle review submission
@@ -134,7 +152,7 @@ export default function NFTPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-space-mono bg-zinc-950 ">
+    <div className="flex flex-col min-h-screen font-space-mono bg-zinc-950">
       <Navbar />
       <div className="flex-1 p-4 md:p-8">
         {isConnected ? (
@@ -149,19 +167,37 @@ export default function NFTPage() {
                   className="rounded-lg shadow-lg"
                 />
               ) : (
-                <div className="w-full h-[520px] flex items-center justify-center text-gray-500">Image not available</div>
+                <div className="w-full h-[520px] flex items-center justify-center text-gray-500">
+                  Image not available
+                </div>
               )}
             </div>
             <div className="mt-6 md:mt-0 md:ml-8 flex flex-col md:w-1/2">
               <div className="text-gray-700">
-                <h1 className="text-3xl font-semibold text-slate-300">{item?.name || "Name not available"} #{item?.tokenId}</h1>
+                <h1 className="text-3xl font-semibold text-slate-300">
+                  {item?.name || "Name not available"} #{item?.tokenId}
+                </h1>
                 <div className="my-4">
-                  <p className="leading-relaxed text-gray-600">{item?.description || "Description not available"}</p>
+                  <p className="leading-relaxed text-gray-600">
+                    {item?.description || "Description not available"}
+                  </p>
                 </div>
-                <p className="text-xl font-bold text-gray-600">{item?.price || "Price not available"} ETH</p>
+                <div className="my-4">
+                  <p className="leading-relaxed text-gray-600">
+                    Seller: {item?.seller || "Seller not available"}
+                  </p>
+                  <p className="leading-relaxed text-gray-600">
+                    Creator: {item?.creator || "Owner not available"}
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-gray-600">
+                  {item?.price || "Price not available"} ETH
+                </p>
 
                 {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
-                  <p className="mt-4 text-pink-400 font-semibold">You already own this NFT.</p>
+                  <p className="mt-4 text-pink-400 font-semibold">
+                    You already own this NFT.
+                  </p>
                 ) : (
                   <button
                     onClick={buyNFT}
@@ -171,9 +207,21 @@ export default function NFTPage() {
                   </button>
                 )}
 
+                {/* Royalty Info */}
+                {royalty && (
+                  <div className="mt-4 text-slate-300">
+                    <p>
+                      Royalty Paid to Creator: {royalty.amount} ETH (Creator:{" "}
+                      {royalty.creator})
+                    </p>
+                  </div>
+                )}
+
                 {/* Review Form */}
                 <div className="mt-8">
-                  <h2 className="text-2xl font-semibold text-slate-300">Leave a Review</h2>
+                  <h2 className="text-2xl font-semibold text-slate-300">
+                    Leave a Review
+                  </h2>
                   <form onSubmit={submitReview} className="flex flex-col mt-4">
                     <textarea
                       className="p-2 border border-zinc-800 rounded-md text-slate-300 bg-black"
@@ -190,29 +238,30 @@ export default function NFTPage() {
                     </button>
                   </form>
                 </div>
-
-                
               </div>
             </div>
           </div>
         ) : (
-          <div className="text-center text-slate-300">You are not connected...</div>
+          <div className="text-center text-slate-300">
+            You are not connected...
+          </div>
         )}
       </div>
+
       {/* Reviews Section */}
-      <div className="mt-1 p-7 m-7 ">
-                  <h2 className="text-2xl font-semibold text-slate-300">Reviews</h2>
-                  {reviews.length > 0 ? (
-                    reviews.map((r, index) => (
-                      <div key={index} className="mt-4 border-t border-zinc-800 pt-4">
-                        <p className="text-gray-500">{r.userAddress}</p>
-                        <p className="text-slate-300">{r.review}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500">No reviews yet.</p>
-                  )}
-                </div>
+      <div className="mt-1 p-7 m-7">
+        <h2 className="text-2xl font-semibold text-slate-300">Reviews</h2>
+        {reviews.length > 0 ? (
+          reviews.map((r, index) => (
+            <div key={index} className="mt-4 border-t border-zinc-800 pt-4">
+              <p className="text-gray-500">{r.userAddress}</p>
+              <p className="text-slate-300">{r.review}</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No reviews yet.</p>
+        )}
+      </div>
     </div>
   );
 }
