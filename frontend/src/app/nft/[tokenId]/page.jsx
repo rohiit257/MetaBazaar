@@ -200,7 +200,7 @@ export default function NFTPage() {
         )}
       </div>
       {/* Reviews Section */}
-      <div className="mt-8 p-7 m-7">
+      <div className="mt-1 p-7 m-7 ">
                   <h2 className="text-2xl font-semibold text-slate-300">Reviews</h2>
                   {reviews.length > 0 ? (
                     reviews.map((r, index) => (
