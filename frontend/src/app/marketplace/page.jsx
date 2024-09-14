@@ -132,7 +132,7 @@ export default function Marketplace() {
                 <form className="flex-1">
                   <label
                     htmlFor="default-search"
-                    className="mb-2 text-sm font-medium text-slate-300 sr-only"
+                    className="mb-2 text-sm font-medium bg-zinc-950 text-slate-300 sr-only"
                   >
                     Search
                   </label>
@@ -140,7 +140,7 @@ export default function Marketplace() {
                     <input
                       type="search"
                       id="default-search"
-                      className="block w-[350px] p-4 ps-10 text-sm text-slate-300 border border-zinc-800 rounded-lg bg-black focus:ring-pink-300 focus:border-pink-300"
+                      className="block w-[350px] p-4 ps-10 text-sm text-slate-300 border border-zinc-800 rounded-lg bg-zinc-950 focus:ring-pink-300 focus:border-pink-300"
                       placeholder="SEARCH COLLECTIONS....."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -151,7 +151,7 @@ export default function Marketplace() {
 
                 {/* Sort Dropdown */}
                 <select
-                  className="w-[150px] text-slate-300 border border-zinc-800 bg-black bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5"
+                  className="w-[150px] text-slate-300 border border-zinc-800 bg-zinc-950 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5"
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
                 >

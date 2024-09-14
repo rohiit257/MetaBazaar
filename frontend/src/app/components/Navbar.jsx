@@ -1,10 +1,11 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Link from "next/link";
 import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
 import { FlipWords } from "./ui/flip-words";
+import { LinkPreview } from "./ui/link-preview";
 
 const Navbar = ({ className }) => {
   const {
@@ -15,6 +16,8 @@ const Navbar = ({ className }) => {
     signer,
     setSigner,
   } = useContext(WalletContext);
+  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -33,13 +36,15 @@ const Navbar = ({ className }) => {
       const chainID = network.chainId;
       const sepoliaNetworkId = "11155111"; // Corrected to be a number
 
-      if (chainID != sepoliaNetworkId) {
+      if (chainID !== sepoliaNetworkId) {
         alert("Switch to Sepolia network to continue");
       }
     } catch (error) {
       console.log("Connection error", error);
     }
   };
+
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   // Function to truncate wallet address
   const truncateAddress = (address) => {
@@ -91,9 +96,10 @@ const Navbar = ({ className }) => {
                 PROFILE
               </Link>
             </li>
+            
           </ul>
         </div>
-        <div className="hidden lg:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-4 relative">
           {isConnected ? (
             <>
               <Link
@@ -104,9 +110,67 @@ const Navbar = ({ className }) => {
               </Link>
               <button
                 type="button"
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-pink-400 shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
+                className="relative rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-pink-400 shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black font-space-mono tracking-wide"
+                onClick={toggleDropdown}
               >
                 {truncateAddress(userAddress)}
+                <svg
+                  className="w-2.5 h-2.5 ms-3 inline"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 10 6"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m1 1 4 4 4-4"
+                  />
+                </svg>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-44 bg-zinc-900 divide-y divide-gray-100 rounded-lg shadow z-10 dark:bg-zinc-900 dark:divide-gray-600">
+                    <ul className="py-2 text-sm text-gray-700 dark:text-slate-300">
+                      <li>
+                        <Link
+                          href="/leaderboard"
+                          className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
+                        >
+            
+                          LEADERBOARD
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/settings"
+                          className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
+                        >
+                          <LinkPreview url="https://sepolia.etherscan.io/address/0x5c0Eeb32043e0F42Ea0C0e15A32cE1d34db564E9">
+                          TRANSACTIONS
+
+                          </LinkPreview>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/earnings"
+                          className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
+                        >
+                          Earnings
+                        </Link>
+                      </li>
+                    </ul>
+                    <div className="py-2">
+                      <Link
+                        href="/"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:text-gray-200 dark:hover:text-white"
+                      >
+                        Separated link
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </button>
             </>
           ) : (
