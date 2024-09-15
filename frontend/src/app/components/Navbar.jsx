@@ -154,10 +154,10 @@ const Navbar = ({ className }) => {
                       </li>
                       <li>
                         <Link
-                          href="/earnings"
+                          href="/discussion"
                           className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
                         >
-                          Earnings
+                          DISCUSSIONS
                         </Link>
                       </li>
                     </ul>

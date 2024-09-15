@@ -58,7 +58,7 @@ export default function Leaderboard() {
     <>
     <Navbar/>
 
-<div className="p-4">
+<div className="p-4 ">
       <section className="mx-auto w-full max-w-7xl px-2 py-4 font-space-mono">
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
@@ -68,12 +68,12 @@ export default function Leaderboard() {
             </p>
           </div>
         </div>
-        <div className="mt-6 flex flex-col">
+        <div className="mt-6 flex flex-col ">
           <div className="-mx-2 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
               <div className="overflow-hidden border border-black md:rounded-lg">
                 <table className="min-w-full divide-y divide-zinc-800">
-                  <thead className="bg-zinc-950">
+                  <thead className="bg-black">
                     <tr>
                       <th className="px-4 py-3.5 text-left text-base font-normal text-slate-300">Rank</th>
                       <th className="px-4 py-3.5 text-left text-base font-normal text-slate-300">Creator Address</th>
@@ -81,7 +81,7 @@ export default function Leaderboard() {
                       <th className="px-4 py-3.5 text-left text-base font-normal text-slate-300">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800 bg-zinc-950">
+                  <tbody className=" divide-zinc-800 bg-black">
                     {creators.map((creator, index) => (
                       <tr key={creator.address}>
                         {/* Rank column */}
