@@ -165,7 +165,7 @@ export default function Marketplace() {
               {/* Display NFTs */}
               {sortedItems?.length > 0 ? (
                 viewMode === "card" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {sortedItems.map((value, index) => (
                       <NFTCard item={value} key={index} />
                     ))}
