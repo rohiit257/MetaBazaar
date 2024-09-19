@@ -6,7 +6,7 @@ import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
 import { FlipWords } from "./ui/flip-words";
 import { LinkPreview } from "./ui/link-preview";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 
 const Navbar = ({ className }) => {
@@ -34,10 +34,10 @@ const Navbar = ({ className }) => {
       const accounts = await provider.send("eth_requestAccounts", []);
       setIsConnected(true);
       setUserAddress(accounts[0]);
-      toast("MetaMask Wallet Connected")
+      toast("MetaMask Wallet Connected");
       const network = await provider.getNetwork();
       const chainID = network.chainId;
-      const sepoliaNetworkId = "11155111"; // Corrected to be a number
+      const sepoliaNetworkId = "11155111";
 
       if (chainID !== sepoliaNetworkId) {
         toast("Switch to Sepolia network to continue");
@@ -49,60 +49,47 @@ const Navbar = ({ className }) => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  // Function to truncate wallet address
   const truncateAddress = (address) => {
     return address ? `${address.slice(0, 8)}...` : "";
   };
 
   return (
-    <div
-      className={`sticky top-0 z-50 w-full bg-zinc-950 shadow-md ${className} border-b border-zinc-900`}
-    >
-      <div className="mt-1 mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
-        <div className="inline-flex items-center space-x-2">
-          <span></span>
+    <div className={`sticky top-0 z-50 w-full bg-black border border-zinc-950 ${className}`}>
+      <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        {/* Left Side */}
+        <div className="flex items-center space-x-6">
           <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">
             <FlipWords words={["METABAZAAR", "METABAZAAR"]} duration={1} />
           </span>
+          {/* Vertical line break */}
+          <div className="border-l border-slate-300 h-6 mx-3" />
+          <div className="hidden lg:flex space-x-6">
+            <Link href="/" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              HOME
+            </Link>
+            <Link href="/marketplace" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              MARKETPLACE
+            </Link>
+            <Link href="/mint" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              MINT
+            </Link>
+            <Link href="/profile" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              PROFILE
+            </Link>
+          </div>
         </div>
-        <div className="hidden lg:block">
-          <ul className="inline-flex space-x-6">
-            <li>
-              <Link
-                href="/"
-                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
-              >
-                HOME
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/marketplace"
-                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
-              >
-                MARKETPLACE
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/mint"
-                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
-              >
-                MINT
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/profile"
-                className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide"
-              >
-                PROFILE
-              </Link>
-            </li>
-            
-          </ul>
+
+        {/* Middle (Search bar) */}
+        <div className="hidden lg:flex flex-1 justify-center">
+          <input
+            type="text"
+            placeholder="Search NFTs..."
+            className="w-80 bg-transparent border border-zinc-900 text-slate-300 rounded-md py-2 px-4 font-space-mono focus:outline-none focus:ring-2 focus:ring-pink-300"
+          />
         </div>
-        <div className="hidden lg:flex items-center space-x-4 relative">
+
+        {/* Right Side (Wallet and Trade buttons) */}
+        <div className="flex items-center space-x-4">
           {isConnected ? (
             <>
               <Link
@@ -136,39 +123,25 @@ const Navbar = ({ className }) => {
                   <div className="absolute right-0 mt-2 w-44 bg-zinc-900 divide-y divide-gray-100 rounded-lg shadow z-10 dark:bg-zinc-900 dark:divide-gray-600">
                     <ul className="py-2 text-sm text-gray-700 dark:text-slate-300">
                       <li>
-                        <Link
-                          href="/leaderboard"
-                          className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
-                        >
-            
+                        <Link href="/leaderboard" className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white">
                           LEADERBOARD
                         </Link>
                       </li>
                       <li>
-                        <Link
-                          href="/settings"
-                          className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
-                        >
+                        <Link href="/settings" className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white">
                           <LinkPreview url="https://sepolia.etherscan.io/address/0x5c0Eeb32043e0F42Ea0C0e15A32cE1d34db564E9">
-                          TRANSACTIONS
-
+                            TRANSACTIONS
                           </LinkPreview>
                         </Link>
                       </li>
                       <li>
-                        <Link
-                          href="/discussion"
-                          className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white"
-                        >
+                        <Link href="/discussion" className="block px-4 py-2 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:hover:text-white">
                           DISCUSSIONS
                         </Link>
                       </li>
                     </ul>
                     <div className="py-2">
-                      <Link
-                        href="/"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:text-gray-200 dark:hover:text-white"
-                      >
+                      <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-zinc-950 dark:hover:bg-zinc-950 dark:text-gray-200 dark:hover:text-white">
                         Separated link
                       </Link>
                     </div>
@@ -185,24 +158,6 @@ const Navbar = ({ className }) => {
               CONNECT WALLET
             </button>
           )}
-        </div>
-        <div className="lg:hidden">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6 cursor-pointer"
-          >
-            <line x1="4" y1="12" x2="20" y2="12"></line>
-            <line x1="4" y1="6" x2="20" y2="6"></line>
-            <line x1="4" y1="18" x2="20" y2="18"></line>
-          </svg>
         </div>
       </div>
     </div>
