@@ -6,6 +6,8 @@ import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
 import { FlipWords } from "./ui/flip-words";
 import { LinkPreview } from "./ui/link-preview";
+import { toast } from "sonner"
+
 
 const Navbar = ({ className }) => {
   const {
@@ -21,7 +23,7 @@ const Navbar = ({ className }) => {
 
   const connectWallet = async () => {
     if (!window.ethereum) {
-      alert("Please Install MetaMask To Continue");
+      toast("Please Install MetaMask To Continue");
       return;
     }
 
@@ -32,12 +34,13 @@ const Navbar = ({ className }) => {
       const accounts = await provider.send("eth_requestAccounts", []);
       setIsConnected(true);
       setUserAddress(accounts[0]);
+      toast("MetaMask Wallet Connected")
       const network = await provider.getNetwork();
       const chainID = network.chainId;
       const sepoliaNetworkId = "11155111"; // Corrected to be a number
 
       if (chainID !== sepoliaNetworkId) {
-        alert("Switch to Sepolia network to continue");
+        toast("Switch to Sepolia network to continue");
       }
     } catch (error) {
       console.log("Connection error", error);

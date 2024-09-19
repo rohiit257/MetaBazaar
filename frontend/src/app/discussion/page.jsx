@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "@/app/components/Navbar";
 import { WalletContext } from "@/context/wallet";
+import { toast } from "sonner";
 
 export default function DiscussionPage() {
   const { userAddress, isConnected } = useContext(WalletContext);
@@ -39,6 +40,7 @@ export default function DiscussionPage() {
       });
       setNewDiscussion(""); // Clear the discussion input
       setMsg("Discussion submitted successfully!");
+      toast("Discussion submitted successfully!")
       fetchDiscussions(); // Refresh the discussions list
     } catch (error) {
       setMsg("Error submitting discussion.");
