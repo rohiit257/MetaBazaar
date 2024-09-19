@@ -1,3 +1,4 @@
+import { AppleCardsCarouselDemo } from "./components/Featurednfts";
 import { HeroScrollDemo } from "./components/Hero";
 import Navbar from "./components/Navbar";
 import { StickyScrollRevealDemo } from "./components/Sticky";
@@ -101,6 +102,7 @@ export default function Home() {
     <>
       <Navbar />  
       <HeroScrollDemo/>
+      <AppleCardsCarouselDemo/>
       <StickyScrollRevealDemo/>
 
       

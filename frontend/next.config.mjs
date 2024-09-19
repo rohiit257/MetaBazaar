@@ -2,7 +2,9 @@
 const nextConfig = {
   images: {
     domains: [
-      "api.microlink.io", // Microlink Image Preview
+      "api.microlink.io",
+      'images.unsplash.com', 
+      'assets.aceternity.com'// Microlink Image Preview
     ],
     remotePatterns: [
       {

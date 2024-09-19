@@ -5,14 +5,14 @@ import Image from "next/image";
 
 export function HeroScrollDemo() {
   return (
-    (<div className="flex flex-col overflow-hidden">
+    (<div className="flex flex-col overflow-hidden font-space-mono">
       <ContainerScroll
         titleComponent={
           <>
             <h1 className="text-4xl font-semibold text-black dark:text-white">
-              Unleash the power of <br />
+            Step Into a World Where Every Pixel Matters, and Creativity is Turned into an Asset You Can Own, Trade, and Treasure Forever <br />
               <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none">
-                Scroll Animations
+              MetaBazaar
               </span>
             </h1>
           </>
