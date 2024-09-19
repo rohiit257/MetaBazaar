@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
 import NFTCard from "../components/NFTCard/NFTCard";
-import NFTTable from "../components/nftTable/NFTTable";
+import NFTTable from "../components/NFTTable/NFTTable";
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";

@@ -102,6 +102,7 @@ export default function Home() {
     <>
       <Navbar />  
       <HeroScrollDemo/>
+      
       <AppleCardsCarouselDemo/>
       <StickyScrollRevealDemo/>
 
