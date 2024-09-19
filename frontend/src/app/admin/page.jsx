@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
-import NFTCard from "../components/nftCard/NFTCard";
+import NFTCard from "../components/NFTCard/NFTCard";
 import Navbar from "../components/Navbar";
 import SalesChart from "../components/SalesChart";
 import { WalletContext } from "@/context/wallet";
