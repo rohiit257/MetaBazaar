@@ -9,6 +9,7 @@ import { useState, useContext } from "react";
 import Navbar from "../components/Navbar";
 import { Vortex } from "../components/ui/vortex";
 import { LampContainer } from "../components/ui/lamp";
+import { toast } from "sonner";
 
 export default function MINT() {
   const [formParams, updateFormParams] = useState({
@@ -101,7 +102,7 @@ export default function MINT() {
       setBtnDisabled(true);
       updateMessage("");
       updateFormParams({ name: "", description: "", price: "" });
-      alert("Successfully listed your NFT!");
+      toast("Successfully listed your NFT!");
       router.push("/profile");
     } catch (e) {
       alert("Upload error: " + e.message);
