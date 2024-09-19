@@ -18,7 +18,7 @@ export function HeroScrollDemo() {
           </>
         }>
         <Image
-          src={`/linear.webp`}
+          src={`/nft2.png`}
           alt="hero"
           height={720}
           width={1400}
