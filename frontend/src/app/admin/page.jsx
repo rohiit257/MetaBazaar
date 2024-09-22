@@ -8,6 +8,7 @@ import Navbar from "../components/Navbar";
 import SalesChart from "../components/SalesChart";
 import { WalletContext } from "@/context/wallet";
 import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
 
 export default function AdminPage() {
   const [items, setItems] = useState([]);
@@ -31,7 +32,7 @@ export default function AdminPage() {
       const currentAddress = await signer.getAddress();
       const ownerAddress = await contract.marketplaceOwner();
       if (currentAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
-        alert("You are not authorized to access this page.");
+        toast("You are not authorized to access this page.");
         router.push("/"); // Redirect to homepage
       }
     };
@@ -172,7 +173,7 @@ export default function AdminPage() {
               <div className="m-5 text-right">
                 <button
                   onClick={() => router.push('/admin/updatefees')}
-                  className="px-4 py-2 bg-sky-300 text-white rounded"
+                  className="px-4 py-2 bg-sky-300 hover:bg-sky-400 text-white rounded"
                 >
                   Update Fees
                 </button>
