@@ -100,10 +100,14 @@ export default function NFTPage() {
         signer
       );
       const salePrice = ethers.parseUnits(item.price, "ether");
+      console.log(salePrice);
+      
       setBtnContent("Processing...");
       setMsg("Buying the NFT... Please Wait (Up to 5 mins)");
 
       let transaction = await contract.sellNFT(tokenId, { value: salePrice });
+      console.log(transaction);
+      
       await transaction.wait();
 
       alert("You successfully bought the NFT!");
@@ -112,6 +116,7 @@ export default function NFTPage() {
       router.push("/");
 
     } catch (e) {
+      console.error("Error in sellNFT:", e); // More detailed logging
       console.log(e);
       
       setMsg("Error buying NFT.");
