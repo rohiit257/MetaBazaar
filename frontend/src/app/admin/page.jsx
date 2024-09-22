@@ -3,11 +3,12 @@ import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
-import NFTCard from "@/app/components/NFTCard/NFTCard";
+import NFTCard from "../components/NFTCard/NFTCard";
 import SalesChart from "../components/SalesChart";
-import { WalletContext } from "@/context/wallet";
+import { WalletContext } from "../../context/wallet";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
+import Navbar from "../components/Navbar";
 
 export default function AdminPage() {
   const [items, setItems] = useState([]);
@@ -158,7 +159,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 font-space-mono">
-      <Navbar />
+      <Navbar/>
       <div className="p-8">
         <div className="container mx-auto">
           {isConnected ? (

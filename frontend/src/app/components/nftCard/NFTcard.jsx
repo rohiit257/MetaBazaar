@@ -1,4 +1,3 @@
-'use client'
 import Image from "next/image";
 import GetIpfsUrlFromPinata from "@/app/utils";
 import Link from "next/link";
