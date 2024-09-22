@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { ethers, formatEther } from "ethers";  
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
-import NFTCard from "../components/NFTCard/NFTCard";
+import NFTCard from "@/app/components/NFTCard/NFTCard";
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
