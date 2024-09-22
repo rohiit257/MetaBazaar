@@ -90,7 +90,7 @@ export default function NFTPage() {
   }, [isConnected, signer]);
 
   // Handle buying NFT
-  async function buyNFT() {
+  async function sellNFT() {
     try {
       if (!signer || !item) return;
 
@@ -112,6 +112,8 @@ export default function NFTPage() {
       router.push("/");
 
     } catch (e) {
+      console.log(e);
+      
       setMsg("Error buying NFT.");
       setBtnContent("Buy NFT");
     }
@@ -200,7 +202,7 @@ export default function NFTPage() {
                   </p>
                 ) : (
                   <button
-                    onClick={buyNFT}
+                    onClick={sellNFT}
                     className="mt-4 rounded-md bg-sky-300 px-4 py-2 text-black font-semibold shadow-sm hover:bg-sky-400"
                   >
                     {btnContent}

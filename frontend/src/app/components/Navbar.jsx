@@ -46,6 +46,7 @@ const Navbar = ({ className }) => {
       console.log("Connection error", error);
     }
   };
+  
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
