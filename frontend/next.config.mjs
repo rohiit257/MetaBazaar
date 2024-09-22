@@ -1,12 +1,13 @@
-/** @type {import('next').NextConfig} */
 import path from 'path';
-const __dirname = new URL('.', import.meta.url).pathname;
+
+/** @type {import('next').NextConfig} */
+// const __dirname = new URL('.', import.meta.url).pathname;
 const nextConfig = {
   images: {
     domains: [
       "api.microlink.io",
-      'images.unsplash.com', 
-      'assets.aceternity.com'// Microlink Image Preview
+      "images.unsplash.com",
+      "assets.aceternity.com", // Microlink Image Preview
     ],
     remotePatterns: [
       {
@@ -31,11 +32,12 @@ const nextConfig = {
   },
   webpack: (config) => {
     config.resolve.alias = {
-     ...config.resolve.alias,
-    '@': path.resolve(__dirname, './'),
-     };
+      ...config.resolve.alias,
+      '@': path.resolve('src'), // Adjusted to point to the 'src' folder
+    };
+
     return config;
-    },
+  },
 };
 
 export default nextConfig;
