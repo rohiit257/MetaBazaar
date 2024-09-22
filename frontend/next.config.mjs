@@ -1,7 +1,7 @@
-import path from 'path';
-
 /** @type {import('next').NextConfig} */
-// const __dirname = new URL('.', import.meta.url).pathname;
+import path from 'path'
+const __dirname = new URL('.', import.meta.url).pathname;
+
 const nextConfig = {
   images: {
     domains: [
@@ -33,7 +33,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': path.resolve('src'), // Adjusted to point to the 'src' folder
+      '@': path.resolve(__dirname, 'src'), // Adjusted to point to the 'src' folder
     };
 
     return config;
