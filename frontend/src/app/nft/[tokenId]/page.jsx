@@ -8,6 +8,15 @@ import axios from "axios";
 import GetIpfsUrlFromPinata from "@/app/utils";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function NFTPage() {
   const params = useParams();
@@ -24,7 +33,7 @@ export default function NFTPage() {
   // Review state
   const [review, setReview] = useState("");
   const [reviews, setReviews] = useState([]); // To store all reviews for this NFT
-
+  const [transactionHistory, setTransactionHistory] = useState([]);
   // Fetch NFT data
   async function getNFTData() {
     if (!signer || !tokenId) return;
@@ -71,6 +80,38 @@ export default function NFTPage() {
     }
   }
 
+  async function fetchTransactionHistory() {
+    if (!signer) return;
+
+    let contract = new ethers.Contract(
+      MarketplaceJson.address,
+      MarketplaceJson.abi,
+      signer
+    );
+
+    try {
+      const filter = contract.filters.Transfer(null, null, tokenId);
+      const events = await contract.queryFilter(filter);
+      const transactions = await Promise.all(
+        events.map(async (event) => {
+          const { from, to, tokenId } = event.args;
+          const tx = await event.getTransaction();
+          return {
+            from,
+            to,
+            tokenId,
+            transactionHash: tx.hash,
+            timestamp: new Date((await tx.getBlock()).timestamp * 1000).toLocaleString(),
+          };
+        })
+      );
+
+      setTransactionHistory(transactions);
+    } catch (error) {
+      console.error("Error fetching transaction history:", error);
+    }
+  }
+
   useEffect(() => {
     async function fetchData() {
       if (!isConnected || !signer) return;
@@ -79,6 +120,7 @@ export default function NFTPage() {
         const itemTemp = await getNFTData();
         setItem(itemTemp);
         await fetchReviews(); // Fetch reviews after fetching the NFT data
+        await fetchTransactionHistory(); // Fetch transaction history
 
         listenForRoyaltyPaidEvent(); // Listen for royalty event
       } catch (error) {
@@ -101,24 +143,23 @@ export default function NFTPage() {
       );
       const salePrice = ethers.parseUnits(item.price, "ether");
       console.log(salePrice);
-      
+
       setBtnContent("Processing...");
       setMsg("Buying the NFT... Please Wait (Up to 5 mins)");
 
       let transaction = await contract.sellNFT(tokenId, { value: salePrice });
       console.log(transaction);
-      
+
       await transaction.wait();
 
       alert("You successfully bought the NFT!");
       setMsg("");
       setBtnContent("Buy NFT");
       router.push("/");
-
     } catch (e) {
       console.error("Error in sellNFT:", e); // More detailed logging
       console.log(e);
-      
+
       setMsg("Error buying NFT.");
       setBtnContent("Buy NFT");
     }
@@ -200,6 +241,44 @@ export default function NFTPage() {
                 <p className="text-xl font-bold text-gray-600">
                   {item?.price || "Price not available"} ETH
                 </p>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="destructive">Check Transactions</Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Transaction History</SheetTitle>
+                      <SheetDescription>
+                        Below are the transactions for this NFT.
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="mt-4 bg-black">
+                      {transactionHistory.length > 0 ? (
+                        transactionHistory.map((tx, index) => (
+                          <div key={index} className="mt-2 border-b border-zinc-800 pb-2">
+                            <p className="text-gray-500">
+                              From: {tx.from} To: {tx.to}
+                            </p>
+                            <p className="text-slate-300">
+                              Transaction Hash:{" "}
+                              <a
+                                href={`https://etherscan.io/tx/${tx.transactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline text-sky-300"
+                              >
+                                {tx.transactionHash}
+                              </a>
+                            </p>
+                            <p className="text-gray-400">Timestamp: {tx.timestamp}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400">No transactions found for this NFT.</p>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
 
                 {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
                   <p className="mt-4 text-pink-400 font-semibold">
