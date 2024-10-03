@@ -8,7 +8,8 @@ import NFTTable from "@/app/components/NFTTable/NFTTable";
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
@@ -158,7 +159,6 @@ export default function Marketplace() {
                   <option value="">Sort By Price</option>
                   <option value="low-high">Price: Low to High</option>
                   <option value="high-low">Price: High to Low</option>
-                  
                 </select>
               </div>
 

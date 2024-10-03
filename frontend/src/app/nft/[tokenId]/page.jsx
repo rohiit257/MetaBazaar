@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function NFTPage() {
   const params = useParams();
@@ -152,10 +153,10 @@ export default function NFTPage() {
 
       await transaction.wait();
 
-      alert("You successfully bought the NFT!");
+      toast("You successfully bought the NFT!");
       setMsg("");
       setBtnContent("Buy NFT");
-      router.push("/");
+      // router.push("/");
     } catch (e) {
       console.error("Error in sellNFT:", e); // More detailed logging
       console.log(e);
