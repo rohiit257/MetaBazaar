@@ -241,44 +241,48 @@ export default function NFTPage() {
                 <p className="text-xl font-bold text-gray-600">
                   {item?.price || "Price not available"} ETH
                 </p>
+                <div className="my-4">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="destructive">Check Transactions</Button>
+                    <Button variant="default" className="bg-pink-400 hover:bg-pink-300 text-white">Transactions</Button>
                   </SheetTrigger>
-                  <SheetContent>
+                  <SheetContent className="w-3/4 md:w-2/3 lg:w-1/2 border-l border-zinc-800 font-space-mono">
                     <SheetHeader>
                       <SheetTitle>Transaction History</SheetTitle>
                       <SheetDescription>
                         Below are the transactions for this NFT.
                       </SheetDescription>
                     </SheetHeader>
-                    <div className="mt-4 bg-black">
+                    <div className="mt-4 ">
                       {transactionHistory.length > 0 ? (
                         transactionHistory.map((tx, index) => (
                           <div key={index} className="mt-2 border-b border-zinc-800 pb-2">
-                            <p className="text-gray-500">
+                            <p className="text-white">
                               From: {tx.from} To: {tx.to}
                             </p>
-                            <p className="text-slate-300">
+                            <p className="text-white">
                               Transaction Hash:{" "}
                               <a
                                 href={`https://etherscan.io/tx/${tx.transactionHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="underline text-sky-300"
+                                className="underline text-pink-300"
                               >
                                 {tx.transactionHash}
                               </a>
                             </p>
-                            <p className="text-gray-400">Timestamp: {tx.timestamp}</p>
+                            <p className="text-white">Timestamp: {tx.timestamp}</p>
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-400">No transactions found for this NFT.</p>
+                        <p className="text-white">No transactions found for this NFT.</p>
                       )}
                     </div>
                   </SheetContent>
                 </Sheet>
+
+                </div>
+              
 
                 {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
                   <p className="mt-4 text-pink-400 font-semibold">
