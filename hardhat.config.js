@@ -5,10 +5,10 @@ require("@nomicfoundation/hardhat-toolbox");
 module.exports = {
   solidity: "0.8.24",
   networks: {
-    sepolia: {
+    Amoy: {
       url: process.env.ALCHEMY_API_URL,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 10000,
+      
     },
   },
 };
