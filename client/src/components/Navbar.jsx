@@ -64,7 +64,7 @@ function Navbar() {
           <MenubarTrigger>Marketplace</MenubarTrigger>
           <MenubarContent>
             <MenubarItem asChild>
-              <Link href="/listings">Listings</Link>
+              <Link href="/marketplace">Listings</Link>
             </MenubarItem>
             <MenubarItem asChild>
               <Link href="/trade">Trade</Link>
