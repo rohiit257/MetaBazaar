@@ -191,7 +191,7 @@ export default function NFTPage() {
 
   return (
     <div className="min-h-screen p-8">
-      <Navbar/>
+      <Navbar />
       {item ? (
         <div className="max-w-2xl mx-auto bg-white p-4 rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold mb-4">{item.name}</h1>
@@ -206,13 +206,52 @@ export default function NFTPage() {
           <p className="text-gray-700 mb-2"><strong>Seller:</strong> {item.seller}</p>
           <p className="text-gray-700 mb-2"><strong>Creator:</strong> {item.creator}</p>
           <p className="text-gray-700 mb-2"><strong>Price:</strong> {item.price} ETH</p>
-          <Button 
+          <Button
             onClick={sellNFT}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
           >
             {btnContent}
           </Button>
           {msg && <p className="mt-4 text-red-500">{msg}</p>}
+
+          {/* Review Submission Section */}
+          <div className="mt-8">
+            <h2 className="text-lg font-bold mb-2">Submit a Review</h2>
+            <form onSubmit={submitReview} className="flex flex-col">
+              <textarea
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                rows={4}
+                className="border border-gray-300 p-2 rounded mb-2"
+                placeholder="Write your review here..."
+                required
+              />
+              <Button
+                type="submit"
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Submit Review
+              </Button>
+            </form>
+            {msg && <p className="mt-4 text-red-500">{msg}</p>}
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-8">
+            <h2 className="text-lg font-bold mb-2">Reviews</h2>
+            {reviews.length === 0 ? (
+              <p className="text-gray-500">No reviews yet.</p>
+            ) : (
+              <ul className="space-y-4">
+                {reviews.map((review, index) => (
+                  <li key={index} className="p-4 border border-gray-200 rounded shadow-sm">
+                    <p className="text-gray-700">{review.review}</p>
+                    <p className="text-sm text-gray-500">Reviewed by: {review.userAddress}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       ) : (
         <div className="text-center">
