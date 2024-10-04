@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 contract NFTSTORE is ERC721URIStorage {
     address payable public marketplaceOwner;
     uint256 public listingFeePercent = 20;
-    uint256 public royaltyPercent = 5;
+    uint256 public royaltyPercent = 5;  // Added this line for adjustable royalty
     uint256 private currentTokenId;
     uint256 private totalItemsSold;
 
@@ -19,10 +19,7 @@ contract NFTSTORE is ERC721URIStorage {
         uint256 price;
     }
 
-    mapping(uint256 => nftListing) private tokenIdToListing;
-    mapping(address => uint256) public totalRoyaltiesEarned; // Added mapping for total royalties
-
-    event RoyaltyPaid(address indexed creator, uint256 tokenId, uint256 amount);
+    mapping (uint256 => nftListing) private tokenIdToListing;
 
     modifier onlyMarketplaceOwner {
         require(msg.sender == marketplaceOwner, "Only Owner Can Access This");
@@ -33,6 +30,7 @@ contract NFTSTORE is ERC721URIStorage {
         marketplaceOwner = payable(msg.sender);
     }
 
+    // Helper functions
     function updateListingFeePercent(uint256 _listingFeePercent) public onlyMarketplaceOwner {
         listingFeePercent = _listingFeePercent;
     }
@@ -57,6 +55,7 @@ contract NFTSTORE is ERC721URIStorage {
         return tokenIdToListing[_tokenId];
     }
 
+    // Main functions
     function createNftListing(uint256 _tokenId, uint256 _price) private {
         tokenIdToListing[_tokenId] = nftListing({
             tokenId: _tokenId,
@@ -88,19 +87,23 @@ contract NFTSTORE is ERC721URIStorage {
 
         require(msg.value == price, "Please pay the asking price");
 
+        // Calculate the royalty
         uint256 royalty = (price * royaltyPercent) / 100;
-        totalRoyaltiesEarned[creator] += royalty; // Update total royalties earned
 
+        // Update the seller to the buyer
         listing.seller = payable(msg.sender);
 
+        // Transfer the NFT to the buyer
         _transfer(listing.owner, msg.sender, tokenId);
 
+        // Transfer the marketplace listing fee to the marketplace owner
         uint256 listingFee = (price * listingFeePercent) / 100;
         marketplaceOwner.transfer(listingFee);
 
+        // Transfer the royalty to the creator
         creator.transfer(royalty);
-        emit RoyaltyPaid(creator, tokenId, royalty);
 
+        // Transfer the remaining amount to the seller
         seller.transfer(msg.value - listingFee - royalty);
 
         totalItemsSold++;
@@ -144,16 +147,13 @@ contract NFTSTORE is ERC721URIStorage {
 
         return myNFTs;
     }
-
     function tradeNFT(address recipient, uint256 tokenId) public {
         require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
         require(recipient != address(0), "Invalid recipient address");
-
         _transfer(msg.sender, recipient, tokenId);
-
         if (tokenIdToListing[tokenId].price > 0) {
             tokenIdToListing[tokenId].owner = payable(recipient);
             tokenIdToListing[tokenId].seller = payable(recipient);
         }
-    }
+}
 }

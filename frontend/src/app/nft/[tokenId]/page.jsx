@@ -83,13 +83,11 @@ export default function NFTPage() {
 
   async function fetchTransactionHistory() {
     if (!signer) return;
-
     let contract = new ethers.Contract(
       MarketplaceJson.address,
       MarketplaceJson.abi,
       signer
     );
-
     try {
       const filter = contract.filters.Transfer(null, null, tokenId);
       const events = await contract.queryFilter(filter);
@@ -106,12 +104,12 @@ export default function NFTPage() {
           };
         })
       );
-
       setTransactionHistory(transactions);
     } catch (error) {
       console.error("Error fetching transaction history:", error);
     }
   }
+  
 
   useEffect(() => {
     async function fetchData() {
