@@ -9,7 +9,6 @@ import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
 import { useRouter } from "next/navigation";
-import { Switch } from "@/components/ui/switch";
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
