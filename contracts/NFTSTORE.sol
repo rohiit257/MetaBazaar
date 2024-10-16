@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 contract NFTSTORE is ERC721URIStorage {
     address payable public marketplaceOwner;
     uint256 public listingFeePercent = 20;
-    uint256 public royaltyPercent = 5;  // Adjustable royalty percentage
+    uint256 public royaltyPercent = 5;
     uint256 private currentTokenId;
     uint256 private totalItemsSold;
 
@@ -17,20 +17,11 @@ contract NFTSTORE is ERC721URIStorage {
         address payable seller;
         address payable creator;
         uint256 price;
-    }
-
-    struct nftAuction {
-        uint256 tokenId;
-        address payable creator;
-        uint256 startingPrice;
-        uint256 highestBid;
-        address payable highestBidder;
-        uint256 endTime;
-        bool ended;
+        uint256 salesCount;  // Track number of times sold
+        uint256 lastTransactionTime;  // Track time of last sale
     }
 
     mapping (uint256 => nftListing) private tokenIdToListing;
-    mapping (uint256 => nftAuction) private tokenIdToAuction;
 
     modifier onlyMarketplaceOwner {
         require(msg.sender == marketplaceOwner, "Only Owner Can Access This");
@@ -66,10 +57,6 @@ contract NFTSTORE is ERC721URIStorage {
         return tokenIdToListing[_tokenId];
     }
 
-    function getNFTAuction(uint256 _tokenId) public view returns (nftAuction memory) {
-        return tokenIdToAuction[_tokenId];
-    }
-
     // Main functions
     function createNftListing(uint256 _tokenId, uint256 _price) private {
         tokenIdToListing[_tokenId] = nftListing({
@@ -77,7 +64,9 @@ contract NFTSTORE is ERC721URIStorage {
             owner: payable(msg.sender),
             seller: payable(msg.sender),
             creator: payable(msg.sender),
-            price: _price
+            price: _price,
+            salesCount: 0,  // Initialize sales count
+            lastTransactionTime: block.timestamp  // Initialize with current time
         });
     }
 
@@ -96,7 +85,7 @@ contract NFTSTORE is ERC721URIStorage {
 
     function sellNFT(uint256 tokenId) public payable {
         nftListing storage listing = tokenIdToListing[tokenId];
-        uint256 price = listing.price;
+        uint256 price = listing.price;  // Use the current price stored in the struct
         address payable seller = listing.seller;
         address payable creator = listing.creator;
 
@@ -107,6 +96,12 @@ contract NFTSTORE is ERC721URIStorage {
 
         // Update the seller to the buyer
         listing.seller = payable(msg.sender);
+        listing.owner = payable(msg.sender);
+        listing.salesCount += 1;  // Increment sales count
+        listing.lastTransactionTime = block.timestamp;  // Update last transaction time
+
+        // Adjust the price dynamically
+        updateNFTPrice(tokenId);
 
         // Transfer the NFT to the buyer
         _transfer(listing.owner, msg.sender, tokenId);
@@ -124,52 +119,21 @@ contract NFTSTORE is ERC721URIStorage {
         totalItemsSold++;
     }
 
-    function createAuction(uint256 _tokenId, uint256 _startingPrice, uint256 _duration) public {
-        require(ownerOf(_tokenId) == msg.sender, "You are not the owner of this NFT");
-        require(_duration > 0, "Auction duration must be greater than zero");
+    // Function to dynamically update the price based on rules
+    function updateNFTPrice(uint256 tokenId) internal {
+        nftListing storage listing = tokenIdToListing[tokenId];
+        uint256 currentPrice = listing.price;
 
-        tokenIdToAuction[_tokenId] = nftAuction({
-            tokenId: _tokenId,
-            creator: payable(msg.sender),
-            startingPrice: _startingPrice,
-            highestBid: 0,
-            highestBidder: payable(address(0)),
-            endTime: block.timestamp + _duration,
-            ended: false
-        });
-    }
-
-    function placeBid(uint256 _tokenId) public payable {
-        nftAuction storage auction = tokenIdToAuction[_tokenId];
-
-        require(block.timestamp < auction.endTime, "Auction has ended");
-        require(msg.value > auction.highestBid && msg.value >= auction.startingPrice, "Bid must be higher than the current highest bid");
-
-        // Refund the previous highest bidder
-        if (auction.highestBidder != address(0)) {
-            auction.highestBidder.transfer(auction.highestBid);
+        // Increase price by 10% for every 2 sales
+        if (listing.salesCount % 2 == 0 && listing.salesCount > 0) {
+            uint256 priceIncrease = (currentPrice * 10) / 100;
+            listing.price += priceIncrease;
         }
 
-        auction.highestBid = msg.value;
-        auction.highestBidder = payable(msg.sender);
-    }
-
-    function endAuction(uint256 _tokenId) public {
-        nftAuction storage auction = tokenIdToAuction[_tokenId];
-
-        require(block.timestamp >= auction.endTime, "Auction has not ended yet");
-        require(!auction.ended, "Auction has already ended");
-
-        auction.ended = true;
-
-        if (auction.highestBidder != address(0)) {
-            // Transfer the NFT to the highest bidder
-            _transfer(auction.creator, auction.highestBidder, _tokenId);
-            // Transfer the auction funds to the creator
-            auction.creator.transfer(auction.highestBid);
-        } else {
-            // If no bids were placed, return the NFT to the creator
-            auction.ended = true;
+        // Decrease the price by 8% if more than 36 hours have passed since the last sale
+        if (block.timestamp > listing.lastTransactionTime + 36 hours) {
+            uint256 priceDecrease = (listing.price * 8) / 100;
+            listing.price -= priceDecrease;
         }
     }
 
@@ -210,39 +174,5 @@ contract NFTSTORE is ERC721URIStorage {
         }
 
         return myNFTs;
-    }
-
-    function getMyAuctionedNFTs() public view returns (nftAuction[] memory) {
-        uint256 totalAuctionCount = currentTokenId;
-        uint256 myAuctionCount = 0;
-        uint256 currentIndex = 0;
-
-        for (uint256 i = 0; i < totalAuctionCount; i++) {
-            if (tokenIdToAuction[i + 1].creator == msg.sender) {
-                myAuctionCount++;
-            }
-        }
-
-        nftAuction[] memory myAuctions = new nftAuction[](myAuctionCount);
-        for (uint256 i = 0; i < totalAuctionCount; i++) {
-            if (tokenIdToAuction[i + 1].creator == msg.sender) {
-                uint256 tokenId = i + 1;
-                nftAuction storage auction = tokenIdToAuction[tokenId];
-                myAuctions[currentIndex] = auction;
-                currentIndex++;
-            }
-        }
-
-        return myAuctions;
-    }
-
-    function tradeNFT(address recipient, uint256 tokenId) public {
-        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
-        require(recipient != address(0), "Invalid recipient address");
-        _transfer(msg.sender, recipient, tokenId);
-        if (tokenIdToListing[tokenId].price > 0) {
-            tokenIdToListing[tokenId].owner = payable(recipient);
-            tokenIdToListing[tokenId].seller = payable(recipient);
-        }
     }
 }

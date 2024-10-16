@@ -53,7 +53,7 @@ export default function Marketplace() {
           };
 
           itemsArray.push(item);
-        } catch (err) {
+        } catch (error) {
           console.error(
             `Error fetching metadata for tokenId ${tokenId}:`,
             err.response ? err.response.data : err.message
