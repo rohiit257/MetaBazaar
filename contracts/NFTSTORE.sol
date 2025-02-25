@@ -83,9 +83,9 @@ contract NFTSTORE is ERC721URIStorage {
         return newTokenId;
     }
 
-    function sellNFT(uint256 tokenId) public payable {
+        function sellNFT(uint256 tokenId) public payable {
         nftListing storage listing = tokenIdToListing[tokenId];
-        uint256 price = listing.price;  // Use the current price stored in the struct
+        uint256 price = listing.price;
         address payable seller = listing.seller;
         address payable creator = listing.creator;
 
@@ -96,12 +96,6 @@ contract NFTSTORE is ERC721URIStorage {
 
         // Update the seller to the buyer
         listing.seller = payable(msg.sender);
-        listing.owner = payable(msg.sender);
-        listing.salesCount += 1;  // Increment sales count
-        listing.lastTransactionTime = block.timestamp;  // Update last transaction time
-
-        // Adjust the price dynamically
-        updateNFTPrice(tokenId);
 
         // Transfer the NFT to the buyer
         _transfer(listing.owner, msg.sender, tokenId);
@@ -152,6 +146,18 @@ contract NFTSTORE is ERC721URIStorage {
         return listedNFTs;
     }
 
+     function tradeNFT(address recipient, uint256 tokenId) public {
+        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
+        require(recipient != address(0), "Invalid recipient address");
+
+        _transfer(msg.sender, recipient, tokenId);
+
+        if (tokenIdToListing[tokenId].price > 0) {
+            tokenIdToListing[tokenId].owner = payable(recipient);
+            tokenIdToListing[tokenId].seller = payable(recipient);
+        }
+     }
+
     function getMyNFTs() public view returns (nftListing[] memory) {
         uint256 totalNFTCount = currentTokenId;
         uint256 myNFTCount = 0;
@@ -176,3 +182,4 @@ contract NFTSTORE is ERC721URIStorage {
         return myNFTs;
     }
 }
+

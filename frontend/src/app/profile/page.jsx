@@ -57,8 +57,8 @@ export default function Profile() {
           if (itemsArray.length === 1) {
             setProfilePic(item.image);
           }
-        } catch (err) {
-          console.error(`Error fetching metadata for tokenId ${tokenId}:`, err.response ? err.response.data : err.message);
+        } catch (error) {
+          console.error(`Error fetching metadata for tokenId ${tokenId}:`, error.response ? error.response.data : error.message);
         }
       }
 
@@ -134,7 +134,7 @@ export default function Profile() {
                     Total Amount
                   </dt>
                   <dd className="mt-1 text-sm text-slate-300 sm:mt-0 sm:col-span-2">
-                    {totalAmount.toFixed(2)} ETH
+                    {totalAmount.toFixed(5)} ETH
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -142,7 +142,7 @@ export default function Profile() {
                     Total Royalties Earned
                   </dt>
                   <dd className="mt-1 text-sm text-slate-300 sm:mt-0 sm:col-span-2">
-                    {totalRoyalties.toFixed(2)} ETH
+                    {totalRoyalties.toFixed(15)} ETH
                   </dd>
                 </div>
               </dl>

@@ -121,7 +121,7 @@ export default function NFTPage() {
         await fetchReviews(); // Fetch reviews after fetching the NFT data
         await fetchTransactionHistory(); // Fetch transaction history
 
-        listenForRoyaltyPaidEvent(); // Listen for royalty event
+        // listenForRoyaltyPaidEvent(); // Listen for royalty event
       } catch (error) {
         setItem(null);
       }
@@ -165,20 +165,20 @@ export default function NFTPage() {
   }
 
   // Listen for the RoyaltyPaid event from the contract
-  async function listenForRoyaltyPaidEvent() {
-    if (!signer) return;
+  // async function listenForRoyaltyPaidEvent() {
+  //   if (!signer) return;
 
-    const contract = new ethers.Contract(
-      MarketplaceJson.address,
-      MarketplaceJson.abi,
-      signer
-    );
+  //   const contract = new ethers.Contract(
+  //     MarketplaceJson.address,
+  //     MarketplaceJson.abi,
+  //     signer
+  //   );
 
-    contract.on("RoyaltyPaid", (creator, amount, tokenId) => {
-      const amountInEth = ethers.formatEther(amount);
-      setRoyalty({ creator, amount: amountInEth });
-    });
-  }
+  //   contract.on("RoyaltyPaid", (creator, amount, tokenId) => {
+  //     const amountInEth = ethers.formatEther(amount);
+  //     setRoyalty({ creator, amount: amountInEth });
+  //   });
+  // }
 
   // Handle review submission
   async function submitReview(e) {
