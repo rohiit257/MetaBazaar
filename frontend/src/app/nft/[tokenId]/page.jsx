@@ -237,7 +237,7 @@ export default function NFTPage() {
                     Creator: {item?.creator || "Owner not available"}
                   </p>
                 </div>
-                <p className="text-xl font-bold text-gray-600">
+                <p className="text-xl font-bold text-green-500">
                   {item?.price || "Price not available"} ETH
                 </p>
                 <Sheet>

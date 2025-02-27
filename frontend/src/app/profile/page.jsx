@@ -70,7 +70,7 @@ export default function Profile() {
       setTotalRoyalties(parseFloat(formatEther(royalties)));  
 
     } catch (error) {
-      console.error("Error fetching NFT items:", error.response ? err.response.data : err.message);
+      console.error("Error fetching NFT items:", error.response ? error.response.data : error.message);
     }
 
     return itemsArray;
