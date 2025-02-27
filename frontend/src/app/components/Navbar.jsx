@@ -17,6 +17,7 @@ const Navbar = ({ className }) => {
     setUserAddress,
     signer,
     setSigner,
+    userName
   } = useContext(WalletContext);
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

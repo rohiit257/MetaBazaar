@@ -27,7 +27,7 @@ export default function NFTPage() {
   const [item, setItem] = useState(null);
   const [msg, setMsg] = useState("");
   const [btnContent, setBtnContent] = useState("Buy NFT");
-  const { isConnected, userAddress, signer } = useContext(WalletContext);
+  const { isConnected, userAddress, signer,userName } = useContext(WalletContext);
   const router = useRouter();
 
   // State for royalty
@@ -287,6 +287,7 @@ export default function NFTPage() {
                 <div className="my-4">
                   <p className="leading-relaxed text-gray-600">
                     Seller: {item?.seller || "Seller not available"}
+                    
                   </p>
                   <p className="leading-relaxed text-gray-600">
                     Creator: {item?.creator || "Owner not available"}
@@ -299,7 +300,7 @@ export default function NFTPage() {
                   <SheetTrigger asChild>
                     <Button variant="destructive">Analytics</Button>
                   </SheetTrigger>
-                  <SheetContent className="w-[900px] sm:w-[900px]">
+                  <SheetContent className="w-full sm:w-[900px] font-mono">
                     <SheetHeader>
                       <SheetTitle>Price</SheetTitle>
                       <SheetDescription></SheetDescription>

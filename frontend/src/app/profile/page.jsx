@@ -8,6 +8,8 @@ import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
 import Link from "next/link";
+import { toast } from "sonner";
+
 
 export default function Profile() {
   const [items, setItems] = useState([]);
@@ -15,7 +17,10 @@ export default function Profile() {
   const [totalAmount, setTotalAmount] = useState(0); 
   const [totalRoyalties, setTotalRoyalties] = useState(0); 
   const [profilePic, setProfilePic] = useState(""); 
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State for modal visibility
   const { isConnected, signer } = useContext(WalletContext);
+  const [username, setUsername] = useState(""); 
+  const [email, setEmail] = useState("");
 
   async function getMyNFTs() {
     const itemsArray = [];
@@ -66,8 +71,8 @@ export default function Profile() {
       setUserId(userAddress);
       setTotalAmount(totalAmount);
 
-      const royalties = await contract.totalRoyaltiesEarned(userAddress);
-      setTotalRoyalties(parseFloat(formatEther(royalties)));  
+      // const royalties = await contract.totalRoyaltiesEarned(userAddress);
+      // setTotalRoyalties(parseFloat(formatEther(royalties)));  
 
     } catch (error) {
       console.error("Error fetching NFT items:", error.response ? error.response.data : error.message);
@@ -75,6 +80,50 @@ export default function Profile() {
 
     return itemsArray;
   }
+  const handleSave = async () => {
+    
+    try {
+      const userAddress = await signer.getAddress(); // Retrieve address from WalletContext
+  
+      const response = await axios.post("/api/create_user", {
+        userAddress, // Address from wallet
+        userName: username,
+        email,
+      });  
+      if (response.status === 200) {
+        console.log("Profile updated successfully:", response.data);
+        
+      } else {
+        console.error("Failed to update profile:", response.data);
+      }
+    } catch (error) {
+      console.error(
+        "Error updating profile:",
+        error.response ? error.response.data : error.message
+      )
+    }
+    setIsDialogOpen(false);
+  };
+
+  const fetchUserData = async () => {
+    if (!isConnected || !signer) return;
+  
+    try {
+      const userAddress = await signer.getAddress();
+  
+      const response = await axios.get(`/api/get_user?userAddress=${userAddress}`);
+  
+      if (response.status === 200) {
+        const userData = response.data;
+        setUsername(userData.userName);
+        setEmail(userData.email);
+      } else {
+        console.error("User not found:", response.data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error.response ? error.response.data : error.message);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,6 +136,7 @@ export default function Profile() {
     };
 
     fetchData();
+    fetchUserData()
   }, [isConnected]);
 
   return (
@@ -107,10 +157,10 @@ export default function Profile() {
                 )}
               </div>
               <h3 className="text-lg leading-6 font-medium text-slate-300">
-                User Profile
+                {username}
               </h3>
               <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                This is some information about the user.
+                {email}
               </p>
               <dl className="mt-4 w-full">
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -159,9 +209,64 @@ export default function Profile() {
                     Leaderboard
                   </button>
                 </Link>
+                <button 
+                  className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md"
+                  onClick={() => setIsDialogOpen(true)}
+                >
+                  Edit Profile
+                </button>
               </div>
             </div>
           </div>
+
+          {/* Dialog Modal */}
+          {isDialogOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-black dark:bg-black p-6 rounded-lg shadow-lg w-96 font-mono">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Update Profile
+                </h2>
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
+                    Username
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full p-2 border rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
+                    Email
+                  </label>
+                  <input 
+                    type="email" 
+                    className="w-full p-2 border rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button 
+                    className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Owned NFTs Section */}
           <div className="max-w-2xl mx-auto">

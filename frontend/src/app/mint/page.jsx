@@ -116,18 +116,18 @@ export default function MINT() {
       {/* Background Image Container */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        // style={{
-        //   backgroundImage: `url('https://i.pinimg.com/564x/c0/b9/d2/c0b9d236564328481bb78901ccda6beb.jpg')`,
-        //   backgroundRepeat: 'repeat', // Repeat the image
-        //   backgroundSize: '500px 500px', // Adjust the size of the image
-        //   zIndex: -1,
-        // }}
+        style={{
+          backgroundImage: `url('https://i.pinimg.com/564x/c0/b9/d2/c0b9d236564328481bb78901ccda6beb.jpg')`,
+          backgroundRepeat: 'repeat', // Repeat the image
+          backgroundSize: '500px 500px', // Adjust the size of the image
+          zIndex: -1,
+        }}
       ></div>
       <Navbar />
-      <Vortex/>
+      {/* <Vortex/> */}
    
       {isConnected ? (
-        <div className="flex-1 flex items-center justify-center p-4 relative">
+        <div className="flex-1 flex items-center justify-center p-4 relative font-mono">
           <div className="max-w-md w-full bg-zinc-950 p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6 text-slate-300">MINT YOUT NFT</h2>
             <form className="space-y-4" onSubmit={listNFT}>
