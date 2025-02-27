@@ -17,11 +17,12 @@ contract NFTSTORE is ERC721URIStorage {
         address payable seller;
         address payable creator;
         uint256 price;
-        uint256 salesCount;  // Track number of times sold
-        uint256 lastTransactionTime;  // Track time of last sale
+        uint256 salesCount;
+        uint256 lastTransactionTime;
     }
 
-    mapping (uint256 => nftListing) private tokenIdToListing;
+    mapping(uint256 => nftListing) private tokenIdToListing;
+    mapping(uint256 => uint256[]) private priceHistory;  // Stores price history
 
     modifier onlyMarketplaceOwner {
         require(msg.sender == marketplaceOwner, "Only Owner Can Access This");
@@ -57,6 +58,10 @@ contract NFTSTORE is ERC721URIStorage {
         return tokenIdToListing[_tokenId];
     }
 
+    function getPriceHistory(uint256 _tokenId) public view returns (uint256[] memory) {
+        return priceHistory[_tokenId];
+    }
+
     // Main functions
     function createNftListing(uint256 _tokenId, uint256 _price) private {
         tokenIdToListing[_tokenId] = nftListing({
@@ -65,9 +70,11 @@ contract NFTSTORE is ERC721URIStorage {
             seller: payable(msg.sender),
             creator: payable(msg.sender),
             price: _price,
-            salesCount: 0,  // Initialize sales count
-            lastTransactionTime: block.timestamp  // Initialize with current time
+            salesCount: 0,
+            lastTransactionTime: block.timestamp
         });
+
+        priceHistory[_tokenId].push(_price); // Store initial price
     }
 
     function createToken(string memory _tokenURI, uint256 _price) public returns (uint256) {
@@ -83,7 +90,7 @@ contract NFTSTORE is ERC721URIStorage {
         return newTokenId;
     }
 
-        function sellNFT(uint256 tokenId) public payable {
+    function sellNFT(uint256 tokenId) public payable {
         nftListing storage listing = tokenIdToListing[tokenId];
         uint256 price = listing.price;
         address payable seller = listing.seller;
@@ -94,41 +101,44 @@ contract NFTSTORE is ERC721URIStorage {
         // Calculate the royalty
         uint256 royalty = (price * royaltyPercent) / 100;
 
-        // Update the seller to the buyer
-        listing.seller = payable(msg.sender);
-
         // Transfer the NFT to the buyer
         _transfer(listing.owner, msg.sender, tokenId);
 
-        // Transfer the marketplace listing fee to the marketplace owner
+        // Transfer fees
         uint256 listingFee = (price * listingFeePercent) / 100;
         marketplaceOwner.transfer(listingFee);
-
-        // Transfer the royalty to the creator
         creator.transfer(royalty);
-
-        // Transfer the remaining amount to the seller
         seller.transfer(msg.value - listingFee - royalty);
+
+        // Update ownership and price
+        listing.owner = payable(msg.sender);
+        listing.seller = payable(msg.sender);
+        listing.salesCount++;
+        listing.lastTransactionTime = block.timestamp;
+
+        // Increase price by 2%
+        uint256 newPrice = price + (price * 2) / 100;
+        listing.price = newPrice;
+        priceHistory[tokenId].push(newPrice); // Store price update
 
         totalItemsSold++;
     }
 
-    // Function to dynamically update the price based on rules
-    function updateNFTPrice(uint256 tokenId) internal {
+    function tradeNFT(address recipient, uint256 tokenId) public {
+        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
+        require(recipient != address(0), "Invalid recipient address");
+
+        _transfer(msg.sender, recipient, tokenId);
+
+        // Update listing data
         nftListing storage listing = tokenIdToListing[tokenId];
-        uint256 currentPrice = listing.price;
+        listing.owner = payable(recipient);
+        listing.seller = payable(recipient);
 
-        // Increase price by 10% for every 2 sales
-        if (listing.salesCount % 2 == 0 && listing.salesCount > 0) {
-            uint256 priceIncrease = (currentPrice * 10) / 100;
-            listing.price += priceIncrease;
-        }
-
-        // Decrease the price by 8% if more than 36 hours have passed since the last sale
-        if (block.timestamp > listing.lastTransactionTime + 36 hours) {
-            uint256 priceDecrease = (listing.price * 8) / 100;
-            listing.price -= priceDecrease;
-        }
+        // Increase price by 2%
+        uint256 newPrice = listing.price + (listing.price * 2) / 100;
+        listing.price = newPrice;
+        priceHistory[tokenId].push(newPrice); // Store price update
     }
 
     function getAllListedNFTs() public view returns (nftListing[] memory) {
@@ -145,18 +155,6 @@ contract NFTSTORE is ERC721URIStorage {
 
         return listedNFTs;
     }
-
-     function tradeNFT(address recipient, uint256 tokenId) public {
-        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
-        require(recipient != address(0), "Invalid recipient address");
-
-        _transfer(msg.sender, recipient, tokenId);
-
-        if (tokenIdToListing[tokenId].price > 0) {
-            tokenIdToListing[tokenId].owner = payable(recipient);
-            tokenIdToListing[tokenId].seller = payable(recipient);
-        }
-     }
 
     function getMyNFTs() public view returns (nftListing[] memory) {
         uint256 totalNFTCount = currentTokenId;
@@ -182,4 +180,3 @@ contract NFTSTORE is ERC721URIStorage {
         return myNFTs;
     }
 }
-

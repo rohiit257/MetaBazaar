@@ -8,6 +8,7 @@ import axios from "axios";
 import GetIpfsUrlFromPinata from "@/app/utils";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
+import SalesChart from "../../components/PriceHistoryChart";
 import {
   Sheet,
   SheetContent,
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
+import PriceHistoryChart from "../../components/PriceHistoryChart";
 
 export default function NFTPage() {
   const params = useParams();
@@ -35,6 +37,7 @@ export default function NFTPage() {
   const [review, setReview] = useState("");
   const [reviews, setReviews] = useState([]); // To store all reviews for this NFT
   const [transactionHistory, setTransactionHistory] = useState([]);
+  const [priceHistory, setPriceHistory] = useState([]);
   // Fetch NFT data
   async function getNFTData() {
     if (!signer || !tokenId) return;
@@ -71,6 +74,56 @@ export default function NFTPage() {
     }
   }
 
+  // Fetch NFT price history
+  async function fetchPriceHistory() {
+    if (!signer) return;
+
+    let contract = new ethers.Contract(
+      MarketplaceJson.address,
+      MarketplaceJson.abi,
+      signer
+    );
+
+    try {
+      const prices = await contract.getPriceHistory(tokenId); // Fetch price history
+      const timestamps = await fetchTransactionTimestamps(); // Fetch timestamps separately
+
+      // Format the price history with timestamps
+      const formattedHistory = prices.map((price, index) => ({
+        date: timestamps[index] || "Unknown",
+        amount: ethers.formatEther(price), // Convert from Wei to ETH
+      }));
+
+      setPriceHistory(formattedHistory);
+    } catch (error) {
+      console.error("Error fetching price history:", error);
+    }
+  }
+
+  // Fetch transaction timestamps
+  async function fetchTransactionTimestamps() {
+    let contract = new ethers.Contract(
+      MarketplaceJson.address,
+      MarketplaceJson.abi,
+      signer
+    );
+
+    try {
+      const filter = contract.filters.Transfer(null, null, tokenId);
+      const events = await contract.queryFilter(filter);
+
+      return await Promise.all(
+        events.map(async (event) => {
+          const block = await event.getBlock();
+          return new Date(block.timestamp * 1000).toLocaleDateString(); // Format as readable date
+        })
+      );
+    } catch (error) {
+      console.error("Error fetching timestamps:", error);
+      return [];
+    }
+  }
+
   // Fetch reviews for the NFT
   async function fetchReviews() {
     try {
@@ -100,7 +153,9 @@ export default function NFTPage() {
             to,
             tokenId,
             transactionHash: tx.hash,
-            timestamp: new Date((await tx.getBlock()).timestamp * 1000).toLocaleString(),
+            timestamp: new Date(
+              (await tx.getBlock()).timestamp * 1000
+            ).toLocaleString(),
           };
         })
       );
@@ -109,7 +164,6 @@ export default function NFTPage() {
       console.error("Error fetching transaction history:", error);
     }
   }
-  
 
   useEffect(() => {
     async function fetchData() {
@@ -120,6 +174,7 @@ export default function NFTPage() {
         setItem(itemTemp);
         await fetchReviews(); // Fetch reviews after fetching the NFT data
         await fetchTransactionHistory(); // Fetch transaction history
+        await fetchPriceHistory();
 
         // listenForRoyaltyPaidEvent(); // Listen for royalty event
       } catch (error) {
@@ -242,6 +297,29 @@ export default function NFTPage() {
                 </p>
                 <Sheet>
                   <SheetTrigger asChild>
+                    <Button variant="destructive">Analytics</Button>
+                  </SheetTrigger>
+                  <SheetContent className="w-[900px] sm:w-[900px]">
+                    <SheetHeader>
+                      <SheetTitle>Price</SheetTitle>
+                      <SheetDescription></SheetDescription>
+                    </SheetHeader>
+                    <div className="mt-8">
+                      <h2 className="text-2xl font-semibold text-slate-300">
+                        
+                      </h2>
+                      {priceHistory.length > 0 ? (
+                        <PriceHistoryChart data={priceHistory} />
+                      ) : (
+                        <p className="text-gray-400">
+                          No price history available.
+                        </p>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+                <Sheet>
+                  <SheetTrigger asChild>
                     <Button variant="destructive">Check Transactions</Button>
                   </SheetTrigger>
                   <SheetContent>
@@ -254,7 +332,10 @@ export default function NFTPage() {
                     <div className="mt-4 bg-black">
                       {transactionHistory.length > 0 ? (
                         transactionHistory.map((tx, index) => (
-                          <div key={index} className="mt-2 border-b border-zinc-800 pb-2">
+                          <div
+                            key={index}
+                            className="mt-2 border-b border-zinc-800 pb-2"
+                          >
                             <p className="text-gray-500">
                               From: {tx.from} To: {tx.to}
                             </p>
@@ -269,11 +350,15 @@ export default function NFTPage() {
                                 {tx.transactionHash}
                               </a>
                             </p>
-                            <p className="text-gray-400">Timestamp: {tx.timestamp}</p>
+                            <p className="text-gray-400">
+                              Timestamp: {tx.timestamp}
+                            </p>
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-400">No transactions found for this NFT.</p>
+                        <p className="text-gray-400">
+                          No transactions found for this NFT.
+                        </p>
                       )}
                     </div>
                   </SheetContent>
