@@ -16,7 +16,7 @@ export default function Leaderboard() {
     if (!signer) return;
 
     const contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );

@@ -29,7 +29,7 @@ export default function Profile() {
     if (!signer) return;
 
     const contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );

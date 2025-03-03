@@ -89,7 +89,7 @@ export default function MINT() {
       updateMessage("Uploading NFT... Please don't click anything!");
 
       let contract = new ethers.Contract(
-        marketplace.address,
+        marketplace.address.trim(),
         marketplace.abi,
         signer
       );

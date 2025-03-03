@@ -78,6 +78,9 @@ const Navbar = ({ className }) => {
             <Link href="/profile" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
               PROFILE
             </Link>
+            <Link href="/auction/create_auction" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              Auction
+            </Link>
           </div>
         </div>
 

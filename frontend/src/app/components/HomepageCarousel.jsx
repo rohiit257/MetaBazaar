@@ -17,7 +17,7 @@ export function CarouselDemo() {
     if (!signer) return [];
 
     const contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );

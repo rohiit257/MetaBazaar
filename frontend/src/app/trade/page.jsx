@@ -36,7 +36,7 @@ export default function TRADE() {
       setLoading(true);
 
       let contract = new ethers.Contract(
-        marketplace.address,
+        marketplace.address.trim(),
         marketplace.abi,
         signer
       );

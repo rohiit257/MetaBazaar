@@ -21,8 +21,20 @@ contract NFTSTORE is ERC721URIStorage {
         uint256 lastTransactionTime;
     }
 
+     struct Auction {
+        uint256 tokenId;
+        address payable seller;
+        uint256 startTime;
+        uint256 endTime;
+        uint256 highestBid;
+        address payable highestBidder;
+        bool active;
+    }
+
     mapping(uint256 => nftListing) private tokenIdToListing;
     mapping(uint256 => uint256[]) private priceHistory;  // Stores price history
+     mapping(uint256 => Auction) private auctions;
+    uint256[] private auctionedNFTs;
 
     modifier onlyMarketplaceOwner {
         require(msg.sender == marketplaceOwner, "Only Owner Can Access This");
@@ -136,7 +148,7 @@ contract NFTSTORE is ERC721URIStorage {
         listing.seller = payable(recipient);
 
         // Increase price by 2%
-        uint256 newPrice = listing.price + (listing.price * 2) / 100;
+        uint256 newPrice = listing.price - (listing.price * 2) / 100;
         listing.price = newPrice;
         priceHistory[tokenId].push(newPrice); // Store price update
     }
@@ -179,4 +191,72 @@ contract NFTSTORE is ERC721URIStorage {
 
         return myNFTs;
     }
+
+
+    function auctionNFT(uint256 _tokenId, uint256 _auctionDuration) public {
+        require(ownerOf(_tokenId) == msg.sender, "You are not the owner");
+        require(!auctions[_tokenId].active, "Already auctioned");
+
+        auctions[_tokenId] = Auction({
+            tokenId: _tokenId,
+            seller: payable(msg.sender),
+            startTime: block.timestamp,
+            endTime: block.timestamp + _auctionDuration,
+            highestBid: 0,
+            highestBidder: payable(address(0)),
+            active: true
+        });
+        auctionedNFTs.push(_tokenId);
+    }
+
+       function bid(uint256 _tokenId) public payable {
+        Auction storage auction = auctions[_tokenId];
+        require(auction.active, "NFT not in auction");
+        require(block.timestamp < auction.endTime, "Auction ended");
+        require(msg.value > auction.highestBid, "Bid too low");
+
+        if (auction.highestBidder != address(0)) {
+            auction.highestBidder.transfer(auction.highestBid);
+        }
+
+        auction.highestBid = msg.value;
+        auction.highestBidder = payable(msg.sender);
+
+        // Update the listing price dynamically
+        nftListing storage listing = tokenIdToListing[_tokenId];
+        listing.price = msg.value;
+        priceHistory[_tokenId].push(msg.value);
+    }
+
+    function finalizeAuction(uint256 _tokenId) public {
+        Auction storage auction = auctions[_tokenId];
+        require(auction.active, "Auction not active");
+        require(block.timestamp >= auction.endTime, "Auction not ended");
+
+        auction.active = false;
+
+        if (auction.highestBidder != address(0)) {
+            _transfer(auction.seller, auction.highestBidder, _tokenId);
+            auction.seller.transfer(auction.highestBid);
+        }
+    }
+
+    function getAuctionedNFTs() public view returns (Auction[] memory) {
+        Auction[] memory activeAuctions = new Auction[](auctionedNFTs.length);
+        uint256 count = 0;
+
+        for (uint256 i = 0; i < auctionedNFTs.length; i++) {
+            uint256 tokenId = auctionedNFTs[i];
+            if (auctions[tokenId].active) {
+                activeAuctions[count] = auctions[tokenId];
+                count++;
+            }
+        }
+
+        return activeAuctions;
+    }
+
+
+
+
 }

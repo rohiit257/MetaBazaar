@@ -43,7 +43,7 @@ export default function NFTPage() {
     if (!signer || !tokenId) return;
 
     let contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );
@@ -79,7 +79,7 @@ export default function NFTPage() {
     if (!signer) return;
 
     let contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );
@@ -103,7 +103,7 @@ export default function NFTPage() {
   // Fetch transaction timestamps
   async function fetchTransactionTimestamps() {
     let contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );
@@ -137,7 +137,7 @@ export default function NFTPage() {
   async function fetchTransactionHistory() {
     if (!signer) return;
     let contract = new ethers.Contract(
-      MarketplaceJson.address,
+      MarketplaceJson.address.trim(),
       MarketplaceJson.abi,
       signer
     );
@@ -191,7 +191,7 @@ export default function NFTPage() {
       if (!signer || !item) return;
 
       let contract = new ethers.Contract(
-        MarketplaceJson.address,
+        MarketplaceJson.address.trim(),
         MarketplaceJson.abi,
         signer
       );
