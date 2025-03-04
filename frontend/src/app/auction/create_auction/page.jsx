@@ -5,8 +5,6 @@ import { ethers } from "ethers";
 import { WalletContext } from "../../../context/wallet";
 import MarketplaceJson from "../../marketplace.json";
 import Navbar from "@/app/components/Navbar";
-import { Vortex } from "@/app/components/ui/vortex";
-import { toast } from "sonner";
 
 const CONTRACT_ADDRESS = MarketplaceJson.address.trim();
 
@@ -18,7 +16,7 @@ export default function CreateAuctionPage() {
 
   const startAuction = async () => {
     if (!signer || !userAddress) {
-      toast("Please connect your wallet first.");
+      alert("Please connect your wallet first.");
       return;
     }
 
@@ -27,52 +25,41 @@ export default function CreateAuctionPage() {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, MarketplaceJson.abi, signer);
       const tx = await contract.auctionNFT(tokenId, duration);
       await tx.wait();
-      toast("Auction started successfully!");
-      Router.push("/auction")
+      alert("Auction started successfully!");
     } catch (error) {
       console.error("Error starting auction:", error);
-      toast(`Error starting auction: ${error.reason}`);
+      alert("Error starting auction: " + error.message);
     }
     setLoading(false);
   };
 
   return (
-    <>
-    
-      <Navbar />
-      <div className="flex items-center justify-center min-h-screen bg-black font-mono">
-        
-        
-        <div className="border border-zinc-700 bg-black p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1 className="text-3xl font-semibold text-zinc-200 text-center">Create NFT Auction</h1>
-          
-          <input
-            type="text"
-            placeholder="NFT Token ID"
-            className="border border-zinc-600 bg-black text-white p-3 mt-4 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
-            value={tokenId}
-            onChange={(e) => setTokenId(e.target.value)}
-          />
-          
-          <input
-            type="text"
-            placeholder="Auction Duration (seconds)"
-            className="border border-zinc-600 bg-black text-white p-3 mt-4 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-          />
-          
-          <button
-            onClick={startAuction}
-            className={`mt-6 w-full p-3 rounded-md font-semibold transition ${
-              loading ? "bg-gray-700 cursor-not-allowed" : "bg-sky-500 hover:bg-sky-600"
-            } text-white`}
-            disabled={loading}
-          >
-            {loading ? "Starting Auction..." : "Start Auction"}
-          </button>
-        </div>
-      </div>
-    </>
+   <>
+   <Navbar/>
+   <div className="p-6 font-mono">
+      <h1 className="text-3xl text-black font-bold">Create NFT Auction</h1>
+      <input
+        type="text"
+        placeholder="NFT Token ID"
+        className="border p-2 mt-2 w-full text-"
+        value={tokenId}
+        onChange={(e) => setTokenId(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Auction Duration (seconds)"
+        className="border p-2 mt-2 w-full"
+        value={duration}
+        onChange={(e) => setDuration(e.target.value)}
+      />
+      <button
+        onClick={startAuction}
+        className="bg-sky-400 text-white p-2 mt-2 w-full rounded"
+        disabled={loading}
+      >
+        {loading ? "Starting Auction..." : "Start Auction"}
+      </button>
+    </div>
+   </>
   );
 }
