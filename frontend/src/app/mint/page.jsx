@@ -7,7 +7,6 @@ import { ethers } from "ethers";
 import { WalletContext } from "@/context/wallet";
 import { useState, useContext } from "react";
 import Navbar from "../components/Navbar";
-import { Vortex } from "../components/ui/vortex";
 import { LampContainer } from "../components/ui/lamp";
 import { toast } from "sonner";
 

@@ -6,7 +6,6 @@ import { ethers } from "ethers";
 import marketplace from "./../marketplace.json";
 import { WalletContext } from "@/context/wallet";
 import Navbar from "../components/Navbar";
-import { Vortex } from "../components/ui/vortex";
 import { FlipWords } from "../components/ui/flip-words";
 // Assuming you have a FlipWords component
 
