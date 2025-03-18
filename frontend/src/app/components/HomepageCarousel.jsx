@@ -35,7 +35,7 @@ export function CarouselDemo() {
             title: meta.name,
             src: meta.image, // NFT image
             button: (
-              <Link href={`/nft/${tokenId}`} className="text-black font-mono ">
+              <Link href={`/nft/${tokenId}`} className="text-black font-mono">
                 Explore
               </Link>
             ),
@@ -72,13 +72,28 @@ export function CarouselDemo() {
   }, [isConnected, signer]); // Re-fetch when the wallet connects
 
   return (
-    <div className="relative w-full py-20 font-mono">
-      <h2 className="text-4xl font-bold text-center text-white mb-6">
+    <div className="relative w-full py-10 md:py-20 font-mono px-4 sm:px-6 lg:px-8">
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-white mb-6">
+        Trending NFTs
       </h2>
       {nfts.length > 0 ? (
-        <Carousel slides={nfts} />
+        <Carousel
+          slides={nfts}
+          options={{
+            responsive: {
+              // Adjust the number of slides shown based on screen size
+              mobile: { breakpoint: { max: 640, min: 0 }, items: 1 },
+              tablet: { breakpoint: { max: 1024, min: 640 }, items: 2 },
+              desktop: { breakpoint: { max: 3000, min: 1024 }, items: 3 },
+            },
+          }}
+        />
       ) : (
-        <p className="text-center text-gray-500">Connect Your Wallet To Explore Trending NFT's</p>
+        <p className="text-center text-gray-500">
+          {isConnected
+            ? "No NFTs available. Check back later!"
+            : "Connect Your Wallet To Explore Trending NFTs"}
+        </p>
       )}
     </div>
   );

@@ -27,7 +27,7 @@ export default function NFTPage() {
   const [item, setItem] = useState(null);
   const [msg, setMsg] = useState("");
   const [btnContent, setBtnContent] = useState("Buy NFT");
-  const { isConnected, userAddress, signer,userName } = useContext(WalletContext);
+  const { isConnected, userAddress, signer, userName } = useContext(WalletContext);
   const router = useRouter();
 
   // State for royalty
@@ -38,6 +38,7 @@ export default function NFTPage() {
   const [reviews, setReviews] = useState([]); // To store all reviews for this NFT
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [priceHistory, setPriceHistory] = useState([]);
+
   // Fetch NFT data
   async function getNFTData() {
     if (!signer || !tokenId) return;
@@ -175,8 +176,6 @@ export default function NFTPage() {
         await fetchReviews(); // Fetch reviews after fetching the NFT data
         await fetchTransactionHistory(); // Fetch transaction history
         await fetchPriceHistory();
-
-        // listenForRoyaltyPaidEvent(); // Listen for royalty event
       } catch (error) {
         setItem(null);
       }
@@ -209,7 +208,6 @@ export default function NFTPage() {
       toast("You successfully bought the NFT!");
       setMsg("");
       setBtnContent("Buy NFT");
-      // router.push("/");
     } catch (e) {
       console.error("Error in sellNFT:", e); // More detailed logging
       console.log(e);
@@ -218,22 +216,6 @@ export default function NFTPage() {
       setBtnContent("Buy NFT");
     }
   }
-
-  // Listen for the RoyaltyPaid event from the contract
-  // async function listenForRoyaltyPaidEvent() {
-  //   if (!signer) return;
-
-  //   const contract = new ethers.Contract(
-  //     MarketplaceJson.address,
-  //     MarketplaceJson.abi,
-  //     signer
-  //   );
-
-  //   contract.on("RoyaltyPaid", (creator, amount, tokenId) => {
-  //     const amountInEth = ethers.formatEther(amount);
-  //     setRoyalty({ creator, amount: amountInEth });
-  //   });
-  // }
 
   // Handle review submission
   async function submitReview(e) {
@@ -254,29 +236,32 @@ export default function NFTPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-space-mono bg-zinc-950">
+    <div className="flex flex-col min-h-screen font-space-mono bg-black">
       <Navbar />
       <div className="flex-1 p-4 md:p-8">
         {isConnected ? (
-          <div className="container mx-auto flex flex-col md:flex-row items-center m-7 p-7">
-            <div className="flex-shrink-0">
+          <div className="container mx-auto flex flex-col md:flex-row items-center m-4 p-4">
+            {/* NFT Image */}
+            <div className="flex-shrink-0 w-full md:w-1/2">
               {item?.image ? (
                 <Image
                   src={item.image}
                   alt={item.name || "NFT Image"}
                   width={450}
                   height={550}
-                  className="rounded-lg shadow-lg"
+                  className="rounded-lg shadow-lg w-full h-auto"
                 />
               ) : (
-                <div className="w-full h-[520px] flex items-center justify-center text-gray-500">
+                <div className="w-full h-[300px] md:h-[520px] flex items-center justify-center text-gray-500">
                   Image not available
                 </div>
               )}
             </div>
-            <div className="mt-6 md:mt-0 md:ml-8 flex flex-col md:w-1/2">
+
+            {/* NFT Details */}
+            <div className="mt-6 md:mt-0 md:ml-8 flex flex-col w-full md:w-1/2">
               <div className="text-gray-700">
-                <h1 className="text-3xl font-semibold text-slate-300">
+                <h1 className="text-2xl md:text-3xl font-semibold text-slate-300">
                   {item?.name || "Name not available"} #{item?.tokenId}
                 </h1>
                 <div className="my-4">
@@ -287,7 +272,6 @@ export default function NFTPage() {
                 <div className="my-4">
                   <p className="leading-relaxed text-gray-600">
                     Seller: {item?.seller || "Seller not available"}
-                    
                   </p>
                   <p className="leading-relaxed text-gray-600">
                     Creator: {item?.creator || "Owner not available"}
@@ -296,9 +280,13 @@ export default function NFTPage() {
                 <p className="text-xl font-bold text-green-500">
                   {item?.price || "Price not available"} ETH
                 </p>
+
+                {/* Analytics Sheet */}
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="destructive">Analytics</Button>
+                    <Button variant="destructive" className="mt-4">
+                      Analytics
+                    </Button>
                   </SheetTrigger>
                   <SheetContent className="w-full sm:w-[900px] font-mono">
                     <SheetHeader>
@@ -306,9 +294,6 @@ export default function NFTPage() {
                       <SheetDescription></SheetDescription>
                     </SheetHeader>
                     <div className="mt-8">
-                      <h2 className="text-2xl font-semibold text-slate-300">
-                        
-                      </h2>
                       {priceHistory.length > 0 ? (
                         <PriceHistoryChart data={priceHistory} />
                       ) : (
@@ -319,9 +304,13 @@ export default function NFTPage() {
                     </div>
                   </SheetContent>
                 </Sheet>
+
+                {/* Transaction History Sheet */}
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="destructive">Check Transactions</Button>
+                    <Button variant="destructive" className="mt-4">
+                      Check Transactions
+                    </Button>
                   </SheetTrigger>
                   <SheetContent>
                     <SheetHeader>
@@ -365,6 +354,7 @@ export default function NFTPage() {
                   </SheetContent>
                 </Sheet>
 
+                {/* Buy Button or Ownership Message */}
                 {userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
                   <p className="mt-4 text-pink-400 font-semibold">
                     You already own this NFT.
@@ -420,7 +410,7 @@ export default function NFTPage() {
       </div>
 
       {/* Reviews Section */}
-      <div className="mt-1 p-7 m-7">
+      <div className="mt-1 p-4 m-4">
         <h2 className="text-2xl font-semibold text-slate-300">Reviews</h2>
         {reviews.length > 0 ? (
           reviews.map((r, index) => (

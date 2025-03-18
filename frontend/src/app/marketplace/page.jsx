@@ -57,9 +57,8 @@ export default function Marketplace() {
 
           itemsArray.push(item);
         } catch (error) {
-          Sentry.captureException(error)
+          Sentry.captureException(error);
           console.error(
-
             `Error fetching metadata for tokenId ${tokenId}:`,
             error.response ? error.response.data : error.message
           );
@@ -107,13 +106,46 @@ export default function Marketplace() {
   });
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-black">
       <Navbar />
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="container mx-auto">
-          <div className="flex justify-center items-center space-x-4 max-w-xs mx-auto mb-4 font-space-mono">
-            {/* Toggle Slider */}
-            <label className="flex items-center cursor-pointer">
+          {/* Search and Sort Controls */}
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-xs sm:max-w-none mx-auto mb-4 font-space-mono">
+            {/* Search Bar */}
+            <form className="w-full sm:w-auto">
+              <label
+                htmlFor="default-search"
+                className="mb-2 text-sm font-medium bg-zinc-950 text-slate-300 sr-only"
+              >
+                Search
+              </label>
+              <div className="relative">
+                <input
+                  type="search"
+                  id="default-search"
+                  className="block w-full sm:w-[350px] p-4 ps-10 text-sm text-slate-300 border border-zinc-800 rounded-lg bg-zinc-950 focus:ring-pink-300 focus:border-pink-300"
+                  placeholder="SEARCH COLLECTIONS....."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  required
+                />
+              </div>
+            </form>
+
+            {/* Sort Dropdown */}
+            <select
+              className="w-full sm:w-[150px] text-slate-300 border border-zinc-800 bg-zinc-950 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="">Sort By Price</option>
+              <option value="low-high">Price: Low to High</option>
+              <option value="high-low">Price: High to Low</option>
+            </select>
+
+            {/* Toggle Slider (Hidden on Mobile) */}
+            <label className="hidden sm:flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 className="sr-only peer"
@@ -128,38 +160,6 @@ export default function Marketplace() {
                 {viewMode === "card" ? "Table" : "Card"}
               </span>
             </label>
-
-            {/* Search Bar */}
-            <form className="flex-1">
-              <label
-                htmlFor="default-search"
-                className="mb-2 text-sm font-medium bg-zinc-950 text-slate-300 sr-only"
-              >
-                Search
-              </label>
-              <div className="relative">
-                <input
-                  type="search"
-                  id="default-search"
-                  className="block w-[350px] p-4 ps-10 text-sm text-slate-300 border border-zinc-800 rounded-lg bg-zinc-950 focus:ring-pink-300 focus:border-pink-300"
-                  placeholder="SEARCH COLLECTIONS....."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  required
-                />
-              </div>
-            </form>
-
-            {/* Sort Dropdown */}
-            <select
-              className="w-[150px] text-slate-300 border border-zinc-800 bg-zinc-950 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="">Sort By Price</option>
-              <option value="low-high">Price: Low to High</option>
-              <option value="high-low">Price: High to Low</option>
-            </select>
           </div>
 
           {/* Display NFTs */}

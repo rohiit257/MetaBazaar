@@ -8,7 +8,6 @@ import { FlipWords } from "./ui/flip-words";
 import { LinkPreview } from "./ui/link-preview";
 import { toast } from "sonner";
 
-
 const Navbar = ({ className }) => {
   const {
     isConnected,
@@ -17,10 +16,11 @@ const Navbar = ({ className }) => {
     setUserAddress,
     signer,
     setSigner,
-    userName
+    userName,
   } = useContext(WalletContext);
-  
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -47,9 +47,9 @@ const Navbar = ({ className }) => {
       console.log("Connection error", error);
     }
   };
-  
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   const truncateAddress = (address) => {
     return address ? `${address.slice(0, 8)}...` : "";
@@ -58,13 +58,36 @@ const Navbar = ({ className }) => {
   return (
     <div className={`sticky top-0 z-50 w-full bg-black border border-zinc-950 ${className}`}>
       <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
-        {/* Left Side */}
+        {/* Left Side - Hamburger Menu and Logo */}
         <div className="flex items-center space-x-6">
+          {/* Hamburger Menu for Mobile */}
+          <button
+            type="button"
+            className="lg:hidden text-slate-300 hover:text-pink-300 focus:outline-none"
+            onClick={toggleMobileMenu}
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              />
+            </svg>
+          </button>
+
+          {/* Logo */}
           <span className="text-lg font-bold text-slate-300 font-space-mono tracking-wide">
             <FlipWords words={["METABAZAAR", "METABAZAAR"]} duration={1} />
           </span>
-          {/* Vertical line break */}
-          <div className="border-l border-slate-300 h-6 mx-3" />
+
+          {/* Desktop Navigation Links */}
           <div className="hidden lg:flex space-x-6">
             <Link href="/" className="text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
               HOME
@@ -84,7 +107,7 @@ const Navbar = ({ className }) => {
           </div>
         </div>
 
-        {/* Middle (Search bar) */}
+        {/* Middle (Search bar) - Hidden on Mobile */}
         <div className="hidden lg:flex flex-1 justify-center">
           <input
             type="text"
@@ -93,8 +116,8 @@ const Navbar = ({ className }) => {
           />
         </div>
 
-        {/* Right Side (Wallet and Trade buttons) */}
-        <div className="flex items-center space-x-4">
+        {/* Right Side (Wallet and Trade buttons) - Hidden on Mobile */}
+        <div className="hidden lg:flex items-center space-x-4">
           {isConnected ? (
             <>
               <Link
@@ -165,6 +188,84 @@ const Navbar = ({ className }) => {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden bg-zinc-900 border-t border-zinc-950">
+          <div className="px-4 py-2 space-y-2">
+            {/* Navigation Links */}
+            <Link href="/" className="block text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              HOME
+            </Link>
+            <Link href="/marketplace" className="block text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              MARKETPLACE
+            </Link>
+            <Link href="/mint" className="block text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              MINT
+            </Link>
+            <Link href="/profile" className="block text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              PROFILE
+            </Link>
+            <Link href="/auction" className="block text-sm font-semibold text-slate-300 hover:text-pink-300 font-space-mono tracking-wide">
+              AUCTION
+            </Link>
+
+            {/* Trade NFT Button */}
+            {isConnected && (
+              <Link
+                href="/trade"
+                className="block rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-sky-200 shadow-sm hover:bg-black/80 font-space-mono tracking-wide"
+              >
+                TRADE NFT
+              </Link>
+            )}
+
+            {/* Wallet Address or Connect Wallet Button */}
+            {isConnected ? (
+              <button
+                type="button"
+                className="w-full rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-pink-400 shadow-sm hover:bg-black/80 font-space-mono tracking-wide"
+                onClick={toggleDropdown}
+              >
+                {truncateAddress(userAddress)}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={connectWallet}
+                className="w-full rounded-md bg-sky-200 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-sky-400/80 font-space-mono tracking-wide"
+              >
+                CONNECT WALLET
+              </button>
+            )}
+
+            {/* Dropdown Menu for Wallet Address */}
+            {isDropdownOpen && (
+              <div className="mt-2 bg-zinc-800 rounded-lg shadow">
+                <ul className="py-2 text-sm text-slate-300">
+                  <li>
+                    <Link href="/leaderboard" className="block px-4 py-2 hover:bg-zinc-950">
+                      LEADERBOARD
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/settings" className="block px-4 py-2 hover:bg-zinc-950">
+                      <LinkPreview url="https://sepolia.etherscan.io/address/0x5c0Eeb32043e0F42Ea0C0e15A32cE1d34db564E9">
+                        TRANSACTIONS
+                      </LinkPreview>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/discussion" className="block px-4 py-2 hover:bg-zinc-950">
+                      DISCUSSIONS
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
