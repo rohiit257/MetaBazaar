@@ -8,6 +8,7 @@ import NFTTable from "../components/NFTTable";
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
+import * as Sentry from "@sentry/nextjs";
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
@@ -56,7 +57,9 @@ export default function Marketplace() {
 
           itemsArray.push(item);
         } catch (error) {
+          Sentry.captureException(error)
           console.error(
+
             `Error fetching metadata for tokenId ${tokenId}:`,
             error.response ? error.response.data : error.message
           );
