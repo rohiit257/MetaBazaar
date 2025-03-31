@@ -77,7 +77,7 @@ export default function TrendingCollections() {
       // Convert map to array and sort by volume
       const sortedCollections = Array.from(collectionMap.values())
         .map(collection => ({
-          id: collection.name,
+          id: collection.items[0].id,
           name: collection.name,
           creator: Array.from(collection.uniqueOwners)[0].slice(0, 6) + '...' + Array.from(collection.uniqueOwners)[0].slice(-4),
           floorPrice: Math.min(...collection.items.map(item => item.price)).toFixed(4) + ' ETH',
@@ -140,7 +140,7 @@ export default function TrendingCollections() {
     >
       {collections.map((collection) => (
         <motion.div key={collection.id} variants={item}>
-          <Link href="#" className="block group">
+          <Link href={`/nft/${collection.id}`} className="block group">
             <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-zinc-900 border-zinc-800">
               <div className="relative h-40 overflow-hidden bg-gradient-to-br from-pink-400/10 to-purple-500/10">
                 <div className="absolute inset-0 flex items-center justify-center">

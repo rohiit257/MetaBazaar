@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import Link from "next/link"
 import { ethers } from "ethers"
 import MarketplaceJson from "../marketplace.json"
 import axios from "axios"
@@ -12,9 +13,15 @@ export default function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [featuredNFTs, setFeaturedNFTs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalNFTs: 0,
+    totalArtists: 0,
+    totalNFTsListed: 0
+  })
 
   useEffect(() => {
     fetchRandomNFTs()
+    fetchStats()
   }, [])
 
   const fetchRandomNFTs = async () => {
@@ -58,6 +65,38 @@ export default function HeroSection() {
     } catch (error) {
       console.error("Error fetching random NFTs:", error)
       setLoading(false)
+    }
+  }
+
+  const fetchStats = async () => {
+    try {
+      const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_ALCHEMY_URL)
+      const contract = new ethers.Contract(
+        MarketplaceJson.address.trim(),
+        MarketplaceJson.abi,
+        provider
+      )
+
+      // Get all listed NFTs
+      const nfts = await contract.getAllListedNFTs()
+      
+      // Get unique creators (artists) from NFTs
+      const uniqueCreators = [...new Set(nfts.map(nft => nft.creator))]
+      const totalArtists = uniqueCreators.length
+
+      // Get total NFTs minted
+      const totalNFTs = await contract._tokenIds()
+
+      // Get total listed NFTs
+      const totalNFTsListed = nfts.length
+
+      setStats({
+        totalNFTs: parseInt(totalNFTs),
+        totalArtists,
+        totalNFTsListed
+      })
+    } catch (error) {
+      console.error("Error fetching stats:", error)
     }
   }
 
@@ -161,16 +200,20 @@ export default function HeroSection() {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Button size="lg" className="sm:w-auto bg-pink-400 hover:bg-pink-500 text-white">
-                Explore Collection
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="sm:w-auto border-pink-400 text-pink-400 hover:bg-pink-400/10"
-              >
-                Create NFT
-              </Button>
+              <Link href="/marketplace">
+                <Button size="lg" className="sm:w-auto bg-pink-400 hover:bg-pink-500 text-white">
+                  Explore Collection
+                </Button>
+              </Link>
+              <Link href="/mint">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="sm:w-auto border-pink-400 text-pink-400 hover:bg-pink-400/10"
+                >
+                  Mint NFT
+                </Button>
+              </Link>
             </motion.div>
 
             <motion.div
@@ -180,16 +223,16 @@ export default function HeroSection() {
               className="mt-12 flex items-center gap-8"
             >
               <div>
-                <p className="text-3xl font-bold">10K+</p>
+                <p className="text-3xl font-bold">{stats.totalNFTs}</p>
                 <p className="text-zinc-400">Artworks</p>
               </div>
               <div>
-                <p className="text-3xl font-bold">3.2K+</p>
+                <p className="text-3xl font-bold">{stats.totalArtists}</p>
                 <p className="text-zinc-400">Artists</p>
               </div>
               <div>
-                <p className="text-3xl font-bold">25K+</p>
-                <p className="text-zinc-400">Collectors</p>
+                <p className="text-3xl font-bold">{stats.totalNFTsListed}</p>
+                <p className="text-zinc-400">NFTs Listed</p>
               </div>
             </motion.div>
           </motion.div>
@@ -220,9 +263,11 @@ export default function HeroSection() {
                       <p className="text-white/80 mb-3">by {nft.creator}</p>
                       <div className="flex justify-between items-center">
                         <p className="text-white font-semibold">{nft.price}</p>
-                        <Button size="sm" variant="secondary" className="bg-pink-400 hover:bg-pink-500 text-white">
-                          View NFT
-                        </Button>
+                        <Link href={`/nft/${nft.id}`}>
+                          <Button size="sm" variant="secondary" className="bg-pink-400 hover:bg-pink-500 text-white">
+                            View NFT
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>

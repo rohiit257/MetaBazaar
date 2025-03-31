@@ -138,9 +138,11 @@ export default function FeaturedNFTs() {
                   <p className="text-sm text-zinc-400">Current Price</p>
                   <p className="font-semibold">{nft.price}</p>
                 </div>
-                <Button size="sm" className="bg-pink-400 hover:bg-pink-500 text-white">
-                  Place Bid
-                </Button>
+                <Link href={`/nft/${nft.id}`}>
+                  <Button size="sm" className="bg-pink-400 hover:bg-pink-500 text-white">
+                    Browse
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           </Link>
