@@ -10,7 +10,7 @@ module.exports = {
   	extend: {
   		fontFamily: {
   			'space-mono': [
-  				'Space Mono"',
+  				'Space Mono',
   				'monospace'
   			]
   		},

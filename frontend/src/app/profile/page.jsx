@@ -9,7 +9,23 @@ import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
 import Link from "next/link";
 import { toast } from "sonner";
-import { User, Coins, Image as ImageIcon, Trophy, Edit2, Plus, Medal } from "lucide-react";
+import { User, Coins, Image as ImageIcon, Trophy, Edit2, Plus, Medal, Gavel, Timer } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Hash } from "lucide-react";
 
 
 export default function Profile() {
@@ -22,6 +38,10 @@ export default function Profile() {
   const { isConnected, signer } = useContext(WalletContext);
   const [username, setUsername] = useState(""); 
   const [email, setEmail] = useState("");
+  const [isAuctionDialogOpen, setIsAuctionDialogOpen] = useState(false);
+  const [selectedTokenId, setSelectedTokenId] = useState("");
+  const [duration, setDuration] = useState("");
+  const [auctionLoading, setAuctionLoading] = useState(false);
 
   async function getMyNFTs() {
     const itemsArray = [];
@@ -126,6 +146,34 @@ export default function Profile() {
     }
   };
 
+  const startAuction = async () => {
+    if (!signer || !selectedTokenId || !duration) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      setAuctionLoading(true);
+      const contract = new ethers.Contract(
+        MarketplaceJson.address.trim(),
+        MarketplaceJson.abi,
+        signer
+      );
+      const tx = await contract.auctionNFT(selectedTokenId, duration);
+      await tx.wait();
+      toast.success("Auction started successfully!");
+      setIsAuctionDialogOpen(false);
+      // Refresh NFTs after auction
+      const itemsArray = await getMyNFTs();
+      setItems(itemsArray);
+    } catch (error) {
+      console.error("Error starting auction:", error);
+      toast.error("Error starting auction: " + error.message);
+    } finally {
+      setAuctionLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -141,140 +189,147 @@ export default function Profile() {
   }, [isConnected]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
+    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black">
       <Navbar />
       <div className="p-4 md:p-8">
         <div className="container mx-auto">
           {/* User Info Card */}
-          <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-6 shadow-lg mb-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+          <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-2xl p-8 shadow-xl mb-12 transform hover:scale-[1.01] transition-all duration-300">
+            <div className="flex flex-col md:flex-row items-center md:items-start space-y-8 md:space-y-0 md:space-x-12">
               {/* Profile Picture */}
               <div className="relative group">
-                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-zinc-800/50 border-2 border-zinc-700/50 group-hover:border-pink-500/50 transition-all duration-300">
+                <div className="w-36 h-36 md:w-44 md:h-44 rounded-2xl overflow-hidden bg-zinc-800/50 border-2 border-zinc-700/50 group-hover:border-pink-500/50 transition-all duration-300 shadow-lg">
                   {profilePic ? (
                     <img
                       src={profilePic}
                       alt="Profile Picture"
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <ImageIcon className="w-12 h-12 text-slate-500" />
+                      <ImageIcon className="w-16 h-16 text-slate-500" />
                     </div>
                   )}
                 </div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
 
               {/* User Info */}
               <div className="flex-1 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start space-x-2 mb-2">
-                  <User className="w-5 h-5 text-pink-400" />
-                  <h3 className="text-2xl font-bold text-slate-200">
+                <div className="flex items-center justify-center md:justify-start space-x-3 mb-3">
+                  <User className="w-6 h-6 text-pink-400" />
+                  <h3 className="text-3xl font-bold text-slate-200">
                     {username || "Anonymous"}
                   </h3>
                 </div>
-                <p className="text-slate-400 mb-6">{email || "No email provided"}</p>
+                <p className="text-slate-400 mb-8 text-lg">{email || "No email provided"}</p>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <ImageIcon className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm text-slate-500">NFTs</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="p-5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 hover:border-pink-500/30 transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ImageIcon className="w-5 h-5 text-pink-400" />
+                      <span className="text-sm text-slate-400">NFTs</span>
                     </div>
-                    <p className="text-xl font-bold text-slate-200">{items.length}</p>
+                    <p className="text-2xl font-bold text-slate-200">{items.length}</p>
                   </div>
-                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Coins className="w-4 h-4 text-pink-400" />
-                      <span className="text-sm text-slate-500">Total Value</span>
+                  <div className="p-5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 hover:border-pink-500/30 transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Coins className="w-5 h-5 text-pink-400" />
+                      <span className="text-sm text-slate-400">Total Value</span>
                     </div>
-                    <p className="text-xl font-bold text-pink-400">{totalAmount.toFixed(5)} ETH</p>
+                    <p className="text-2xl font-bold text-pink-400">{totalAmount.toFixed(5)} ETH</p>
                   </div>
-                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Medal className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm text-slate-500">Royalties</span>
+                  <div className="p-5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 hover:border-pink-500/30 transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Medal className="w-5 h-5 text-pink-400" />
+                      <span className="text-sm text-slate-400">Royalties</span>
                     </div>
-                    <p className="text-xl font-bold text-slate-200">{totalRoyalties.toFixed(15)} ETH</p>
+                    <p className="text-2xl font-bold text-slate-200">{totalRoyalties.toFixed(15)} ETH</p>
                   </div>
-                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Trophy className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm text-slate-500">Rank</span>
+                  <div className="p-5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 hover:border-pink-500/30 transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Trophy className="w-5 h-5 text-pink-400" />
+                      <span className="text-sm text-slate-400">Rank</span>
                     </div>
-                    <p className="text-xl font-bold text-slate-200">#{userId.slice(0, 6)}</p>
+                    <p className="text-2xl font-bold text-slate-200">#{userId.slice(0, 6)}</p>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
+                <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
                   <Link href="/mint">
-                    <button className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200">
-                      <Plus className="w-4 h-4" />
-                      <span>Mint NFT</span>
+                    <button className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-all duration-300 hover:scale-105">
+                      <Plus className="w-5 h-5" />
+                      <span className="font-medium">Mint NFT</span>
                     </button>
                   </Link>
                   <Link href="/leaderboard">
-                    <button className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200">
-                      <Trophy className="w-4 h-4" />
-                      <span>Leaderboard</span>
+                    <button className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-all duration-300 hover:scale-105">
+                      <Trophy className="w-5 h-5" />
+                      <span className="font-medium">Leaderboard</span>
                     </button>
                   </Link>
                   <button
-                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200"
+                    className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-all duration-300 hover:scale-105"
                     onClick={() => setIsDialogOpen(true)}
                   >
-                    <Edit2 className="w-4 h-4" />
-                    <span>Edit Profile</span>
+                    <Edit2 className="w-5 h-5" />
+                    <span className="font-medium">Edit Profile</span>
+                  </button>
+                  <button
+                    className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-all duration-300 hover:scale-105"
+                    onClick={() => setIsAuctionDialogOpen(true)}
+                  >
+                    <Gavel className="w-5 h-5" />
+                    <span className="font-medium">Auction NFT</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Dialog Modal */}
+          {/* Dialog Modals */}
           {isDialogOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
-              <div className="bg-zinc-900/90 backdrop-blur-sm border border-zinc-800/50 p-6 rounded-xl shadow-lg w-11/12 sm:w-96">
-                <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center space-x-2">
-                  <Edit2 className="w-5 h-5 text-pink-400" />
+            <div className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-sm z-50">
+              <div className="bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 p-8 rounded-2xl shadow-2xl w-11/12 sm:w-96 transform hover:scale-[1.02] transition-all duration-300">
+                <h2 className="text-2xl font-bold text-slate-200 mb-8 flex items-center space-x-3">
+                  <Edit2 className="w-6 h-6 text-pink-400" />
                   <span>Update Profile</span>
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Username
                     </label>
                     <input
                       type="text"
-                      className="w-full p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
+                      className="w-full p-4 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
                       placeholder="Enter username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Email
                     </label>
                     <input
                       type="email"
-                      className="w-full p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
+                      className="w-full p-4 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
                       placeholder="Enter email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
-                  <div className="flex justify-end space-x-3 mt-6">
+                  <div className="flex justify-end space-x-4 mt-8">
                     <button
-                      className="px-4 py-2 rounded-lg bg-zinc-800/50 text-slate-300 hover:bg-zinc-800/80 transition-colors duration-200"
+                      className="px-6 py-3 rounded-xl bg-zinc-800/50 text-slate-300 hover:bg-zinc-800/80 transition-all duration-300 hover:scale-105"
                       onClick={() => setIsDialogOpen(false)}
                     >
                       Cancel
                     </button>
                     <button
-                      className="px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200"
+                      className="px-6 py-3 rounded-xl bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-all duration-300 hover:scale-105"
                       onClick={handleSave}
                     >
                       Save Changes
@@ -285,21 +340,95 @@ export default function Profile() {
             </div>
           )}
 
+          {/* Auction Dialog */}
+          {isAuctionDialogOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-sm z-50">
+              <div className="bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 p-8 rounded-2xl shadow-2xl w-11/12 sm:w-96 transform hover:scale-[1.02] transition-all duration-300">
+                <h2 className="text-2xl font-bold text-slate-200 mb-8 flex items-center space-x-3">
+                  <Gavel className="w-6 h-6 text-pink-400" />
+                  <span>Start NFT Auction</span>
+                </h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="flex items-center space-x-2 text-sm font-medium text-slate-300 mb-3">
+                      <Hash className="w-5 h-5 text-pink-400" />
+                      <span>Select NFT</span>
+                    </label>
+                    <Select value={selectedTokenId} onValueChange={setSelectedTokenId}>
+                      <SelectTrigger className="w-full p-4 rounded-xl bg-zinc-800/50 border-zinc-700/50 text-slate-300">
+                        <SelectValue placeholder="Select an NFT" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-zinc-800">
+                        {items.map((item) => (
+                          <SelectItem 
+                            key={item.tokenId} 
+                            value={item.tokenId.toString()}
+                            className="text-slate-300 hover:bg-zinc-800"
+                          >
+                            {item.name} #{item.tokenId}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="flex items-center space-x-2 text-sm font-medium text-slate-300 mb-3">
+                      <Timer className="w-5 h-5 text-pink-400" />
+                      <span>Auction Duration (seconds)</span>
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter duration in seconds (e.g., 86400 for 24 hours)"
+                      className="w-full p-4 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-4 mt-8">
+                    <button
+                      className="px-6 py-3 rounded-xl bg-zinc-800/50 text-slate-300 hover:bg-zinc-800/80 transition-all duration-300 hover:scale-105"
+                      onClick={() => setIsAuctionDialogOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-6 py-3 rounded-xl bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-all duration-300 hover:scale-105 inline-flex items-center space-x-2"
+                      onClick={startAuction}
+                      disabled={auctionLoading}
+                    >
+                      {auctionLoading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                          <span className="font-medium">Starting Auction...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Gavel className="w-5 h-5" />
+                          <span className="font-medium">Start Auction</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Owned NFTs Section */}
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl font-bold text-slate-200 mb-6 flex items-center space-x-2">
-              <ImageIcon className="w-6 h-6 text-pink-400" />
+            <h2 className="text-3xl font-bold text-slate-200 mb-8 flex items-center space-x-3">
+              <ImageIcon className="w-7 h-7 text-pink-400" />
               <span>Owned NFTs</span>
             </h2>
             {items.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {items.map((value, index) => (
                   <NFTCard item={value} key={index} />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="text-slate-400 mb-4">
+              <div className="text-center py-16">
+                <div className="text-slate-400 text-lg mb-4">
                   <FlipWords words={["Loading", "Your NFTs", ".", "..", "..."]} />
                 </div>
               </div>

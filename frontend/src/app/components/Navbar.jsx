@@ -107,7 +107,7 @@ const Navbar = ({ className }) => {
           </button>
 
           {/* Logo */}
-          <span className="text-base font-bold text-slate-300 font-mono tracking-wider">
+          <span className="hidden md:block text-base font-bold text-slate-300 font-mono tracking-wider">
             <FlipWords words={["METABAZAAR", "METABAZAAR"]} duration={1} />
           </span>
 
