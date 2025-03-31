@@ -9,6 +9,7 @@ import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
 import * as Sentry from "@sentry/nextjs";
+import { Search, Filter, LayoutGrid, Table2, Sparkles, ArrowRight } from "lucide-react";
 
 export default function Marketplace() {
   const [items, setItems] = useState([]);
@@ -106,26 +107,42 @@ export default function Marketplace() {
   });
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
       <Navbar />
       <div className="p-4 sm:p-8">
         <div className="container mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Sparkles className="w-8 h-8 text-pink-400" />
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-200 font-space-mono">
+                Discover Unique NFTs
+              </h1>
+            </div>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Explore our curated collection of unique digital assets. Find, collect, and trade NFTs from various creators.
+            </p>
+          </div>
+
           {/* Search and Sort Controls */}
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-xs sm:max-w-none mx-auto mb-4 font-space-mono">
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-xs sm:max-w-none mx-auto mb-8 font-space-mono">
             {/* Search Bar */}
             <form className="w-full sm:w-auto">
               <label
                 htmlFor="default-search"
-                className="mb-2 text-sm font-medium bg-zinc-950 text-slate-300 sr-only"
+                className="mb-2 text-sm font-medium text-slate-300 sr-only"
               >
                 Search
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <Search className="w-5 h-5 text-slate-500" />
+                </div>
                 <input
                   type="search"
                   id="default-search"
-                  className="block w-full sm:w-[350px] p-4 ps-10 text-sm text-slate-300 border border-zinc-800 rounded-lg bg-zinc-950 focus:ring-pink-300 focus:border-pink-300"
-                  placeholder="SEARCH COLLECTIONS....."
+                  className="block w-full sm:w-[350px] p-4 pl-10 text-sm text-slate-300 border border-zinc-800/50 rounded-xl bg-zinc-900/50 backdrop-blur-sm focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
+                  placeholder="Search collections..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   required
@@ -134,32 +151,48 @@ export default function Marketplace() {
             </form>
 
             {/* Sort Dropdown */}
-            <select
-              className="w-full sm:w-[150px] text-slate-300 border border-zinc-800 bg-zinc-950 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="">Sort By Price</option>
-              <option value="low-high">Price: Low to High</option>
-              <option value="high-low">Price: High to Low</option>
-            </select>
-
-            {/* Toggle Slider (Hidden on Mobile) */}
-            <label className="hidden sm:flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                onChange={(e) =>
-                  setViewMode(e.target.checked ? "card" : "table")
-                }
-              />
-              <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:bg-pink-400 peer-focus:ring-4 peer-focus:ring-pink-300 transition-all relative">
-                <span className="absolute w-5 h-5 bg-white rounded-full top-0.5 left-[2px] transition-all transform peer-checked:translate-x-full"></span>
+            <div className="relative w-full sm:w-[150px]">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Filter className="w-4 h-4 text-slate-500" />
               </div>
-              <span className="ms-3 text-sm font-medium text-slate-300">
-                {viewMode === "card" ? "Table" : "Card"}
-              </span>
-            </label>
+              <select
+                className="w-full pl-10 text-slate-300 border border-zinc-800/50 bg-zinc-900/50 backdrop-blur-sm hover:bg-zinc-900/80 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 font-medium rounded-xl text-sm px-4 py-2.5 transition-all duration-200"
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+              >
+                <option value="">Sort By</option>
+                <option value="low-high">Price: Low to High</option>
+                <option value="high-low">Price: High to Low</option>
+                <option value="newest">Newest First</option>
+                <option value="most-reviewed">Most Reviewed</option>
+              </select>
+            </div>
+
+            {/* View Toggle */}
+            <div className="hidden sm:flex items-center space-x-2 bg-zinc-900/50 backdrop-blur-sm p-1 rounded-xl border border-zinc-800/50">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 inline-flex items-center space-x-2 ${
+                  viewMode === "table"
+                    ? "bg-pink-500/20 text-pink-400"
+                    : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                <Table2 className="w-4 h-4" />
+                <span>Table</span>
+              </button>
+              <button
+                onClick={() => setViewMode("card")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 inline-flex items-center space-x-2 ${
+                  viewMode === "card"
+                    ? "bg-pink-500/20 text-pink-400"
+                    : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span>Cards</span>
+              </button>
+            </div>
           </div>
 
           {/* Display NFTs */}
@@ -174,8 +207,11 @@ export default function Marketplace() {
               <NFTTable items={sortedItems} />
             )
           ) : (
-            <div className="text-center text-gray-500">
-              <FlipWords words={["Fetching", "NFTs", ".", "..", "..."]} />
+            <div className="text-center py-12">
+              <div className="text-slate-400 mb-4">
+                <FlipWords words={["Fetching", "NFTs", ".", "..", "..."]} />
+              </div>
+              <p className="text-slate-500">No NFTs found matching your search criteria.</p>
             </div>
           )}
         </div>

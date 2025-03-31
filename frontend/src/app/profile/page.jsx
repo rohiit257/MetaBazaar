@@ -9,6 +9,7 @@ import { FlipWords } from "../components/ui/flip-words";
 import { WalletContext } from "@/context/wallet";
 import Link from "next/link";
 import { toast } from "sonner";
+import { User, Coins, Image as ImageIcon, Trophy, Edit2, Plus, Medal } from "lucide-react";
 
 
 export default function Profile() {
@@ -140,154 +141,172 @@ export default function Profile() {
   }, [isConnected]);
 
   return (
-    <div className="min-h-screen bg-black">
-  <Navbar />
-  <div className="p-4 md:p-8">
-    <div className="container mx-auto">
-      {/* User Info Card */}
-      <div className="bg-zinc-900 overflow-hidden shadow rounded-lg text-slate-300 mb-8 mx-auto max-w-2xl">
-        <div className="px-4 py-6 text-slate-300 font-space-mono flex flex-col items-center">
-          {/* Profile Picture */}
-          <div className="flex justify-center items-center w-32 h-32 md:w-40 md:h-40 bg-zinc-800 rounded-full overflow-hidden mb-6">
-            {profilePic ? (
-              <img
-                src={profilePic}
-                alt="Profile Picture"
-                className="w-full h-full object-cover"
-              />
+    <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
+      <Navbar />
+      <div className="p-4 md:p-8">
+        <div className="container mx-auto">
+          {/* User Info Card */}
+          <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-6 shadow-lg mb-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+              {/* Profile Picture */}
+              <div className="relative group">
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-zinc-800/50 border-2 border-zinc-700/50 group-hover:border-pink-500/50 transition-all duration-300">
+                  {profilePic ? (
+                    <img
+                      src={profilePic}
+                      alt="Profile Picture"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-12 h-12 text-slate-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+
+              {/* User Info */}
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start space-x-2 mb-2">
+                  <User className="w-5 h-5 text-pink-400" />
+                  <h3 className="text-2xl font-bold text-slate-200">
+                    {username || "Anonymous"}
+                  </h3>
+                </div>
+                <p className="text-slate-400 mb-6">{email || "No email provided"}</p>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <ImageIcon className="w-4 h-4 text-slate-500" />
+                      <span className="text-sm text-slate-500">NFTs</span>
+                    </div>
+                    <p className="text-xl font-bold text-slate-200">{items.length}</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Coins className="w-4 h-4 text-pink-400" />
+                      <span className="text-sm text-slate-500">Total Value</span>
+                    </div>
+                    <p className="text-xl font-bold text-pink-400">{totalAmount.toFixed(5)} ETH</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Medal className="w-4 h-4 text-slate-500" />
+                      <span className="text-sm text-slate-500">Royalties</span>
+                    </div>
+                    <p className="text-xl font-bold text-slate-200">{totalRoyalties.toFixed(15)} ETH</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Trophy className="w-4 h-4 text-slate-500" />
+                      <span className="text-sm text-slate-500">Rank</span>
+                    </div>
+                    <p className="text-xl font-bold text-slate-200">#{userId.slice(0, 6)}</p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
+                  <Link href="/mint">
+                    <button className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200">
+                      <Plus className="w-4 h-4" />
+                      <span>Mint NFT</span>
+                    </button>
+                  </Link>
+                  <Link href="/leaderboard">
+                    <button className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200">
+                      <Trophy className="w-4 h-4" />
+                      <span>Leaderboard</span>
+                    </button>
+                  </Link>
+                  <button
+                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200"
+                    onClick={() => setIsDialogOpen(true)}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    <span>Edit Profile</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dialog Modal */}
+          {isDialogOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+              <div className="bg-zinc-900/90 backdrop-blur-sm border border-zinc-800/50 p-6 rounded-xl shadow-lg w-11/12 sm:w-96">
+                <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center space-x-2">
+                  <Edit2 className="w-5 h-5 text-pink-400" />
+                  <span>Update Profile</span>
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
+                      placeholder="Enter username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-200"
+                      placeholder="Enter email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <button
+                      className="px-4 py-2 rounded-lg bg-zinc-800/50 text-slate-300 hover:bg-zinc-800/80 transition-colors duration-200"
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-4 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 transition-colors duration-200"
+                      onClick={handleSave}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Owned NFTs Section */}
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-bold text-slate-200 mb-6 flex items-center space-x-2">
+              <ImageIcon className="w-6 h-6 text-pink-400" />
+              <span>Owned NFTs</span>
+            </h2>
+            {items.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {items.map((value, index) => (
+                  <NFTCard item={value} key={index} />
+                ))}
+              </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                No Image
+              <div className="text-center py-12">
+                <div className="text-slate-400 mb-4">
+                  <FlipWords words={["Loading", "Your NFTs", ".", "..", "..."]} />
+                </div>
               </div>
             )}
           </div>
-
-          {/* Username and Email */}
-          <h3 className="text-lg md:text-xl leading-6 font-medium text-slate-300">
-            {username}
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">{email}</p>
-
-          {/* User Details */}
-          <dl className="mt-4 w-full">
-            <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">User ID</dt>
-              <dd className="mt-1 text-sm text-slate-300 sm:mt-0 sm:col-span-2">
-                {userId}
-              </dd>
-            </div>
-            <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Total NFTs</dt>
-              <dd className="mt-1 text-sm text-slate-300 sm:mt-0 sm:col-span-2">
-                {items.length}
-              </dd>
-            </div>
-            <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Total Amount</dt>
-              <dd className="mt-1 text-sm text-slate-300 sm:mt-0 sm:col-span-2">
-                {totalAmount.toFixed(5)} ETH
-              </dd>
-            </div>
-            <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Total Royalties Earned
-              </dt>
-              <dd className="mt-1 text-sm text-slate-300 sm:mt-0 sm:col-span-2">
-                {totalRoyalties.toFixed(15)} ETH
-              </dd>
-            </div>
-          </dl>
-
-          {/* Buttons Row */}
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
-            <Link href="/mint">
-              <button className="bg-sky-300 hover:bg-sky-400 text-white py-2 px-4 rounded-md w-full sm:w-auto">
-                Mint
-              </button>
-            </Link>
-            <Link href="/leaderboard">
-              <button className="bg-pink-300 hover:bg-pink-400 text-white py-2 px-4 rounded-md w-full sm:w-auto">
-                Leaderboard
-              </button>
-            </Link>
-            <button
-              className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md w-full sm:w-auto"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              Edit Profile
-            </button>
-          </div>
         </div>
-      </div>
-
-      {/* Dialog Modal */}
-      {isDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-black dark:bg-black p-6 rounded-lg shadow-lg w-11/12 sm:w-96 font-mono">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Update Profile
-            </h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
-                Username
-              </label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                className="w-full p-2 border rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end space-x-2">
-              <button
-                className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md"
-                onClick={handleSave}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Owned NFTs Section */}
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-slate-300 mb-4 text-center">
-          Owned NFTs
-        </h2>
-        {items.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-            {items.map((value, index) => (
-              <NFTCard item={value} key={index} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center text-gray-500">
-            <FlipWords words={["Fetching", "User Data", ".", "..", "..."]} />
-          </div>
-        )}
       </div>
     </div>
-  </div>
-</div>
   );
 }
