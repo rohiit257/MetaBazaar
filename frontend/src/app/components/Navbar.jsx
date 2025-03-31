@@ -76,9 +76,9 @@ const Navbar = ({ className }) => {
 
   return (
     <div className={`sticky top-0 z-50 w-full bg-black/40 backdrop-blur-md border-b border-zinc-800/30 ${className}`}>
-      <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
         {/* Left Side - Hamburger Menu and Logo */}
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center space-x-6">
           {/* Hamburger Menu for Mobile */}
           <button
             type="button"
@@ -86,19 +86,19 @@ const Navbar = ({ className }) => {
             onClick={toggleMobileMenu}
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             )}
           </button>
 
           {/* Logo */}
-          <span className="text-lg font-bold text-slate-300 font-mono tracking-wider">
+          <span className="text-base font-bold text-slate-300 font-mono tracking-wider">
             <FlipWords words={["METABAZAAR", "METABAZAAR"]} duration={1} />
           </span>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex space-x-8">
+          <div className="hidden lg:flex space-x-6">
             <Link href="/" className="flex items-center space-x-2 text-sm font-mono text-slate-300 hover:text-pink-400 transition-colors">
               <Home className="w-4 h-4" />
               <span>HOME</span>
@@ -122,24 +122,31 @@ const Navbar = ({ className }) => {
           </div>
         </div>
 
-        {/* Right Side (Wallet and Trade buttons) */}
-        <div className="flex items-center space-x-4">
+        {/* Right Side (Wallet, FAQ and Trade buttons) */}
+        <div className="flex items-center space-x-3">
           {isConnected ? (
             <>
               <Link
                 href="/trade"
-                className="flex items-center space-x-2 px-4 py-2 bg-zinc-900/30 hover:bg-zinc-900/50 text-sky-400 border border-sky-500/20 rounded-lg transition-colors font-mono"
+                className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-900/30 hover:bg-zinc-900/50 text-sky-400 border border-sky-500/20 rounded-lg transition-colors font-mono text-sm"
               >
                 <ArrowUpRight className="w-4 h-4" />
-                <span className="text-sm font-medium">TRADE NFT</span>
+                <span className="font-medium">TRADE NFT</span>
+              </Link>
+              <Link
+                href="/faq"
+                className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-900/30 hover:bg-zinc-900/50 text-slate-300 border border-zinc-800/50 rounded-lg transition-colors font-mono text-sm"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span className="font-medium">FAQ</span>
               </Link>
               <button
                 type="button"
-                className="relative flex items-center space-x-2 px-4 py-2 bg-zinc-900/30 hover:bg-zinc-900/50 text-pink-400 border border-pink-500/20 rounded-lg transition-colors font-mono"
+                className="relative flex items-center space-x-2 px-3 py-1.5 bg-zinc-900/30 hover:bg-zinc-900/50 text-pink-400 border border-pink-500/20 rounded-lg transition-colors font-mono text-sm"
                 onClick={toggleDropdown}
               >
                 <Wallet className="w-4 h-4" />
-                <span className="text-sm font-medium">{truncateAddress(userAddress)}</span>
+                <span className="font-medium">{truncateAddress(userAddress)}</span>
                 <ChevronDown className="w-4 h-4" />
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-zinc-900/80 backdrop-blur-lg border border-zinc-800/50 rounded-lg shadow-lg py-2">
@@ -175,14 +182,23 @@ const Navbar = ({ className }) => {
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={connectWallet}
-              className="flex items-center space-x-2 px-4 py-2 bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30 rounded-lg transition-colors font-mono"
-            >
-              <Wallet className="w-4 h-4" />
-              <span className="text-sm font-medium">CONNECT WALLET</span>
-            </button>
+            <>
+              <Link
+                href="/faq"
+                className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-900/30 hover:bg-zinc-900/50 text-slate-300 border border-zinc-800/50 rounded-lg transition-colors font-mono text-sm"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span className="font-medium">FAQ</span>
+              </Link>
+              <button
+                type="button"
+                onClick={connectWallet}
+                className="flex items-center space-x-2 px-3 py-1.5 bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30 rounded-lg transition-colors font-mono text-sm"
+              >
+                <Wallet className="w-4 h-4" />
+                <span className="font-medium">CONNECT WALLET</span>
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -190,7 +206,7 @@ const Navbar = ({ className }) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-zinc-900/80 backdrop-blur-lg border-t border-zinc-800/50">
-          <div className="px-4 py-3 space-y-1">
+          <div className="px-4 py-2 space-y-1">
             {/* Navigation Links */}
             <Link href="/" className="flex items-center space-x-3 px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 rounded-lg transition-colors">
               <Home className="w-5 h-5" />
@@ -211,6 +227,10 @@ const Navbar = ({ className }) => {
             <Link href="/auction" className="flex items-center space-x-3 px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 rounded-lg transition-colors">
               <Gavel className="w-5 h-5" />
               <span>AUCTION</span>
+            </Link>
+            <Link href="/faq" className="flex items-center space-x-3 px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 rounded-lg transition-colors">
+              <MessageSquare className="w-5 h-5" />
+              <span>FAQ</span>
             </Link>
 
             {/* Trade NFT Button */}

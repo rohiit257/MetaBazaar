@@ -5,10 +5,11 @@ import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
 import NFTCard from "../components/NFTCard";
 import SalesChart from "../components/SalesChart";
+import AdminSidebar from "../components/AdminSidebar";
+import Navbar from "../components/Navbar";
 import { WalletContext } from "../../context/wallet";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
-import Navbar from "../components/Navbar";
 import { 
   LayoutDashboard, 
   Settings, 
@@ -22,7 +23,8 @@ import {
   Package,
   TrendingUp,
   Shield,
-  AlertCircle
+  AlertCircle,
+  Menu
 } from "lucide-react";
 import {
   Card,
@@ -57,6 +59,7 @@ export default function AdminPage() {
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isConnected, signer } = useContext(WalletContext);
   const router = useRouter();
 
@@ -203,9 +206,8 @@ export default function AdminPage() {
 
   if (isCheckingAccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="min-h-screen bg-black">
+        <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mx-auto mb-4"></div>
             <p className="text-slate-400">Verifying admin access...</p>
@@ -217,9 +219,9 @@ export default function AdminPage() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
+      <div className="min-h-screen bg-black">
         <Navbar />
-        <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
           <Card className="bg-zinc-900/50 border-zinc-800 max-w-md w-full">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Shield className="w-16 h-16 text-red-500 mb-6" />
@@ -231,12 +233,23 @@ export default function AdminPage() {
                 <p className="text-sm text-slate-400 mb-2">Required Address:</p>
                 <p className="font-mono text-pink-400 break-all">{MARKETPLACE_OWNER}</p>
               </div>
-              <Button 
-                onClick={() => router.push("/")}
-                className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
-              >
-                Return to Home
-              </Button>
+              <div className="flex flex-col space-y-4 w-full">
+                {!isConnected ? (
+                  <Button 
+                    onClick={() => window.location.href = '/'}
+                    className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
+                  >
+                    Connect Wallet
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => router.push("/")}
+                    className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
+                  >
+                    Return to Home
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -246,9 +259,8 @@ export default function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="min-h-screen bg-black">
+        <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mx-auto mb-4"></div>
             <p className="text-slate-400">Loading dashboard data...</p>
@@ -260,9 +272,8 @@ export default function AdminPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="min-h-screen bg-black">
+        <div className="flex items-center justify-center min-h-screen">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
@@ -276,167 +287,156 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
-      <Navbar/>
-      <div className="p-4 md:p-8">
-        <div className="container mx-auto">
-          {isConnected ? (
-            <>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-pink-500/20 p-3 rounded-lg">
-                    <LayoutDashboard className="w-8 h-8 text-pink-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-3">
-                      <h1 className="text-3xl font-bold text-slate-200">Admin Dashboard</h1>
-                      <Badge variant="secondary" className="bg-pink-500/20 text-pink-400 hover:bg-pink-500/30">
-                        Owner
-                      </Badge>
-                    </div>
-                    <p className="text-slate-400">Manage your NFT marketplace</p>
-                  </div>
-                </div>
-                <Button 
-                  onClick={() => router.push('/admin/updatefees')}
-                  className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Update Fees
-                </Button>
+    <div className="min-h-screen bg-black">
+      {/* Sidebar */}
+      <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+      {/* Main Content */}
+      <div className="lg:ml-64">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-30 bg-zinc-900/50 backdrop-blur-xl border-b border-zinc-800/50">
+          <div className="flex items-center justify-between px-4 py-3">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden text-slate-400 hover:text-slate-200"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="flex items-center space-x-4">
+              <div className="bg-pink-500/20 p-2 rounded-lg">
+                <LayoutDashboard className="w-5 h-5 text-pink-400" />
               </div>
-
-              {/* Overview Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Listing Fee</CardTitle>
-                    <Percent className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{listingFee}%</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Royalty Fee</CardTitle>
-                    <Coins className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{royaltyFee}%</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Total NFTs</CardTitle>
-                    <Package className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{totalNFTs}</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Market Cap</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{marketCap} ETH</div>
-                  </CardContent>
-                </Card>
+              <div>
+                <h1 className="text-xl font-bold text-slate-200">Dashboard</h1>
+                <p className="text-sm text-slate-400">Welcome back, Admin</p>
               </div>
+            </div>
+            <Button 
+              onClick={() => router.push('/admin/updatefees')}
+              className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Update Fees
+            </Button>
+          </div>
+        </div>
 
-              {/* Creators and Sales Data Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Users className="w-5 h-5 text-pink-400" />
-                      <span>Creators List</span>
-                    </CardTitle>
-                    <CardDescription>Active NFT creators in the marketplace</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {creators.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="text-slate-400">Address</TableHead>
-                            <TableHead className="text-right text-slate-400">NFTs</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {creators.map((creator, index) => (
-                            <TableRow key={index}>
-                              <TableCell className="font-mono text-slate-300">
-                                {creator.displayAddress}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Badge variant="secondary" className="bg-pink-500/20 text-pink-400 hover:bg-pink-500/30">
-                                  {creator.nftCount}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                        <p className="text-slate-400">No creators found.</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <BarChart2 className="w-5 h-5 text-pink-400" />
-                      <span>Sales Data</span>
-                    </CardTitle>
-                    <CardDescription>Marketplace sales analytics</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <SalesChart data={salesData} />
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Listed NFTs Section */}
-              <Card className="bg-zinc-900/50 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <ImageIcon className="w-5 h-5 text-pink-400" />
-                    <span>Listed NFTs</span>
-                  </CardTitle>
-                  <CardDescription>Currently listed NFTs in the marketplace</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {items.length > 0 ? (
-                      items.map((item, index) => (
-                        <NFTCard key={index} item={item} />
-                      ))
-                    ) : (
-                      <div className="col-span-full text-center py-12">
-                        <ImageIcon className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                        <p className="text-slate-400">No NFTs listed at the moment.</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <AlertCircle className="w-12 h-12 text-slate-600 mb-4" />
-                <h2 className="text-xl font-bold text-slate-200 mb-2">Wallet Not Connected</h2>
-                <p className="text-slate-400">Please connect your wallet to access the admin dashboard.</p>
+        {/* Dashboard Content */}
+        <div className="p-6">
+          {/* Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-zinc-900/50 border-zinc-800 hover:border-pink-500/30 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400">Listing Fee</CardTitle>
+                <Percent className="h-4 w-4 text-pink-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-slate-200">{listingFee}%</div>
               </CardContent>
             </Card>
-          )}
+            <Card className="bg-zinc-900/50 border-zinc-800 hover:border-pink-500/30 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400">Royalty Fee</CardTitle>
+                <Coins className="h-4 w-4 text-pink-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-slate-200">{royaltyFee}%</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-zinc-900/50 border-zinc-800 hover:border-pink-500/30 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400">Total NFTs</CardTitle>
+                <Package className="h-4 w-4 text-pink-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-slate-200">{totalNFTs}</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-zinc-900/50 border-zinc-800 hover:border-pink-500/30 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400">Market Cap</CardTitle>
+                <TrendingUp className="h-4 w-4 text-pink-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-slate-200">{marketCap} ETH</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <Card className="bg-zinc-900/50 border-zinc-800">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BarChart2 className="w-5 h-5 text-pink-400" />
+                  <span>Sales Analytics</span>
+                </CardTitle>
+                <CardDescription>Marketplace sales trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SalesChart data={salesData} />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-zinc-900/50 border-zinc-800">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-pink-400" />
+                  <span>Top Creators</span>
+                </CardTitle>
+                <CardDescription>Most active NFT creators</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {creators.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-slate-400">Address</TableHead>
+                        <TableHead className="text-right text-slate-400">NFTs</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {creators.slice(0, 5).map((creator, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-mono text-slate-300">
+                            {creator.displayAddress}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant="secondary" className="bg-pink-500/20 text-pink-400 hover:bg-pink-500/30">
+                              {creator.nftCount}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                    <p className="text-slate-400">No creators found.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent NFTs Section */}
+          <Card className="bg-zinc-900/50 border-zinc-800">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <ImageIcon className="w-5 h-5 text-pink-400" />
+                <span>Recent NFTs</span>
+              </CardTitle>
+              <CardDescription>Latest listed NFTs in the marketplace</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {items.slice(0, 8).map((item, index) => (
+                  <NFTCard key={index} item={item} />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
