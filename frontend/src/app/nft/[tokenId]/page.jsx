@@ -20,7 +20,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
 import PriceHistoryChart from "../../components/PriceHistoryChart";
-import { Hash, Coins, User, Star, MessageSquare, BarChart2, History, ArrowRight, TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { Hash, Coins, User, Star, MessageSquare, BarChart2, History, ArrowRight, TrendingUp, DollarSign, Calendar, Sparkles } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import {
   Dialog,
@@ -37,6 +37,80 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Clock } from "lucide-react";
+import RecommendedNFTs from "@/app/components/RecommendedNFTs";
+
+// Add these helper functions before the NFTPage component
+function calculateTextSimilarity(text1, text2) {
+  if (!text1 || !text2) return 0;
+  
+  // Convert to lowercase and split into words
+  const words1 = text1.toLowerCase().split(/\s+/);
+  const words2 = text2.toLowerCase().split(/\s+/);
+  
+  // Create sets of words
+  const set1 = new Set(words1);
+  const set2 = new Set(words2);
+  
+  // Calculate Jaccard similarity
+  const intersection = new Set([...set1].filter(x => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  
+  return intersection.size / union.size;
+}
+
+async function getSimilarNFTs(currentTokenId, contract) {
+  try {
+    // Get all listed NFTs
+    const allNFTs = await contract.getAllListedNFTs();
+    
+    // Get current NFT data
+    const currentNFT = allNFTs.find(nft => nft.tokenId.toString() === currentTokenId.toString());
+    if (!currentNFT) return [];
+    
+    const currentTokenURI = await contract.tokenURI(currentTokenId);
+    const currentMetaResponse = await axios.get(GetIpfsUrlFromPinata(currentTokenURI));
+    const currentMeta = currentMetaResponse.data;
+    
+    // Get metadata for all NFTs
+    const nftsWithMetadata = await Promise.all(
+      allNFTs
+        .filter(nft => nft.tokenId.toString() !== currentTokenId.toString())
+        .map(async (nft) => {
+          try {
+            const tokenURI = await contract.tokenURI(nft.tokenId);
+            const metaResponse = await axios.get(GetIpfsUrlFromPinata(tokenURI));
+            const meta = metaResponse.data;
+            
+            // Calculate similarity score
+            const titleSimilarity = calculateTextSimilarity(currentMeta.name, meta.name);
+            const descSimilarity = calculateTextSimilarity(currentMeta.description, meta.description);
+            const totalSimilarity = (titleSimilarity * 0.6) + (descSimilarity * 0.4);
+            
+            return {
+              ...nft,
+              name: meta.name,
+              description: meta.description,
+              image: meta.image,
+              price: ethers.formatEther(nft.price),
+              similarity: totalSimilarity
+            };
+          } catch (error) {
+            console.error(`Error processing NFT ${nft.tokenId}:`, error);
+            return null;
+          }
+        })
+    );
+    
+    // Filter out null values and sort by similarity
+    return nftsWithMetadata
+      .filter(nft => nft !== null)
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 4);
+  } catch (error) {
+    console.error("Error getting similar NFTs:", error);
+    return [];
+  }
+}
 
 export default function NFTPage() {
   const params = useParams();
@@ -56,6 +130,7 @@ export default function NFTPage() {
   const [reviews, setReviews] = useState([]); // To store all reviews for this NFT
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [priceHistory, setPriceHistory] = useState([]);
+  const [similarNFTs, setSimilarNFTs] = useState([]);
 
   // Fetch NFT data
   async function getNFTData() {
@@ -191,9 +266,18 @@ export default function NFTPage() {
       try {
         const itemTemp = await getNFTData();
         setItem(itemTemp);
-        await fetchReviews(); // Fetch reviews after fetching the NFT data
-        await fetchTransactionHistory(); // Fetch transaction history
+        await fetchReviews();
+        await fetchTransactionHistory();
         await fetchPriceHistory();
+        
+        // Get similar NFTs
+        const contract = new ethers.Contract(
+          MarketplaceJson.address.trim(),
+          MarketplaceJson.abi,
+          signer
+        );
+        const similar = await getSimilarNFTs(tokenId, contract);
+        setSimilarNFTs(similar);
       } catch (error) {
         setItem(null);
       }
@@ -612,6 +696,61 @@ export default function NFTPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+            {/* Similar NFTs Section */}
+            <div className="mt-12">
+              <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-200 flex items-center space-x-2">
+                    <Sparkles className="w-6 h-6 text-pink-400" />
+                    <span>You might also like</span>
+                  </h2>
+                </div>
+                {similarNFTs.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {similarNFTs.map((nft) => (
+                      <Card 
+                        key={nft.tokenId} 
+                        className="bg-zinc-900/50 backdrop-blur-sm border-zinc-800/50 hover:border-pink-500/30 transition-all duration-300 hover:scale-105 cursor-pointer"
+                        onClick={() => router.push(`/nft/${nft.tokenId}`)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="aspect-square rounded-lg overflow-hidden bg-zinc-800/50 mb-4">
+                            {nft.image ? (
+                              <Image
+                                src={nft.image}
+                                alt={nft.name}
+                                width={300}
+                                height={300}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                No image
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="font-semibold text-slate-200 mb-1">{nft.name}</h3>
+                          <p className="text-sm text-slate-400 mb-2">#{nft.tokenId}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-pink-400 font-medium flex items-center">
+                              <Coins className="w-4 h-4 mr-1" />
+                              {nft.price} ETH
+                            </span>
+                            <span className="text-xs text-slate-500 bg-zinc-800/50 px-2 py-1 rounded-full">
+                              {Math.round(nft.similarity * 100)}% similar
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-slate-400">No similar NFTs found at the moment.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -23,8 +23,34 @@ import {
   LogOut,
   ChevronRight,
   ArrowUpRight,
-  Network
+  Network,
+  Sparkles
 } from "lucide-react";
+
+// Add this new component for the kite icon
+const KiteIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="mr-2"
+  >
+    <path
+      d="M12 2L2 12L12 22L22 12L12 2Z"
+      fill="url(#gradient)"
+      stroke="url(#gradient)"
+      strokeWidth="1"
+    />
+    <defs>
+      <linearGradient id="gradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#EC4899" />
+        <stop offset="1" stopColor="#8B5CF6" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 const Navbar = ({ className }) => {
   const {
@@ -72,7 +98,7 @@ const Navbar = ({ className }) => {
       console.log("Network", network);
       const chainID = network.chainId;
       console.log("Chain ID", chainID);
-      const sepoliaNetworkId = 11155111;
+      const sepoliaNetworkId = 11155111n;
       console.log("Sepolia Network ID", sepoliaNetworkId);
 
       if (chainID !== sepoliaNetworkId) {
@@ -110,8 +136,9 @@ const Navbar = ({ className }) => {
           </button>
 
           {/* Logo */}
-          <span className="hidden md:block text-base font-bold text-slate-300 font-mono tracking-wider">
-            <FlipWords words={["METABAZAAR", "METABAZAAR"]} duration={1} />
+          <span className="hidden md:flex items-center text-lg font-bold text-white font-mono tracking-wider">
+            <KiteIcon />
+            <FlipWords className="ml-2 text-white" words={["METABAZAAR", "METABAZAAR"]} duration={1} />
           </span>
 
           {/* Desktop Navigation Links */}
