@@ -24,23 +24,6 @@ import {
   Shield,
   AlertCircle
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 
 const MARKETPLACE_OWNER = "0xf29bbCFB987F3618515ddDe75D6CAd34cc1855D7";
 
@@ -200,145 +183,113 @@ export default function AdminPage() {
                     <p className="text-slate-400">Manage your NFT marketplace</p>
                   </div>
                 </div>
-                <Button 
+                <button 
                   onClick={() => router.push('/admin/updatefees')}
-                  className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
+                  className="px-4 py-2 bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30 rounded-lg flex items-center space-x-2 transition-colors"
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Update Fees
-                </Button>
+                  <Settings className="w-4 h-4" />
+                  <span>Update Fees</span>
+                </button>
               </div>
 
               {/* Overview Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Listing Fee</CardTitle>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-slate-400">Listing Fee</h3>
                     <Percent className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{listingFee}%</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Royalty Fee</CardTitle>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-200">{listingFee}%</div>
+                </div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-slate-400">Royalty Fee</h3>
                     <Coins className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{royaltyFee}%</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Total NFTs</CardTitle>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-200">{royaltyFee}%</div>
+                </div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-slate-400">Total NFTs</h3>
                     <Package className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{totalNFTs}</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-400">Market Cap</CardTitle>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-200">{totalNFTs}</div>
+                </div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-slate-400">Market Cap</h3>
                     <TrendingUp className="h-4 w-4 text-pink-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-slate-200">{marketCap} ETH</div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-200">{marketCap} ETH</div>
+                </div>
               </div>
 
               {/* Creators and Sales Data Section */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Users className="w-5 h-5 text-pink-400" />
-                      <span>Creators List</span>
-                    </CardTitle>
-                    <CardDescription>Active NFT creators in the marketplace</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {creators.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="text-slate-400">Address</TableHead>
-                            <TableHead className="text-right text-slate-400">NFTs</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {creators.map((creator, index) => (
-                            <TableRow key={index}>
-                              <TableCell className="font-mono text-slate-300">
-                                {creator.address.slice(0, 6)}...{creator.address.slice(-4)}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Badge variant="secondary" className="bg-pink-500/20 text-pink-400 hover:bg-pink-500/30">
-                                  {creator.nftCount}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                        <p className="text-slate-400">No creators found.</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Users className="w-5 h-5 text-pink-400" />
+                    <h2 className="text-xl font-bold text-slate-200">Creators List</h2>
+                  </div>
+                  <p className="text-sm text-slate-400 mb-4">Active NFT creators in the marketplace</p>
+                  {creators.length > 0 ? (
+                    <div className="space-y-4">
+                      {creators.map((creator, index) => (
+                        <div key={index} className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg">
+                          <div className="font-mono text-slate-300">
+                            {creator.address.slice(0, 6)}...{creator.address.slice(-4)}
+                          </div>
+                          <div className="px-2 py-1 bg-pink-500/20 text-pink-400 rounded-full text-sm">
+                            {creator.nftCount}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                      <p className="text-slate-400">No creators found.</p>
+                    </div>
+                  )}
+                </div>
 
-                <Card className="bg-zinc-900/50 border-zinc-800">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <BarChart2 className="w-5 h-5 text-pink-400" />
-                      <span>Sales Data</span>
-                    </CardTitle>
-                    <CardDescription>Marketplace sales analytics</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <SalesChart data={salesData} />
-                  </CardContent>
-                </Card>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <BarChart2 className="w-5 h-5 text-pink-400" />
+                    <h2 className="text-xl font-bold text-slate-200">Sales Data</h2>
+                  </div>
+                  <p className="text-sm text-slate-400 mb-4">Marketplace sales analytics</p>
+                  <SalesChart data={salesData} />
+                </div>
               </div>
 
               {/* Listed NFTs Section */}
-              <Card className="bg-zinc-900/50 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <ImageIcon className="w-5 h-5 text-pink-400" />
-                    <span>Listed NFTs</span>
-                  </CardTitle>
-                  <CardDescription>Currently listed NFTs in the marketplace</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {items.length > 0 ? (
-                      items.map((item, index) => (
-                        <NFTCard key={index} item={item} />
-                      ))
-                    ) : (
-                      <div className="col-span-full text-center py-12">
-                        <ImageIcon className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                        <p className="text-slate-400">No NFTs listed at the moment.</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <ImageIcon className="w-5 h-5 text-pink-400" />
+                  <h2 className="text-xl font-bold text-slate-200">Listed NFTs</h2>
+                </div>
+                <p className="text-sm text-slate-400 mb-6">Currently listed NFTs in the marketplace</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {items.length > 0 ? (
+                    items.map((item, index) => (
+                      <NFTCard key={index} item={item} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <ImageIcon className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                      <p className="text-slate-400">No NFTs listed at the moment.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           ) : (
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <AlertCircle className="w-12 h-12 text-slate-600 mb-4" />
-                <h2 className="text-xl font-bold text-slate-200 mb-2">Wallet Not Connected</h2>
-                <p className="text-slate-400">Please connect your wallet to access the admin dashboard.</p>
-              </CardContent>
-            </Card>
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-12 text-center">
+              <AlertCircle className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-slate-200 mb-2">Wallet Not Connected</h2>
+              <p className="text-slate-400">Please connect your wallet to access the admin dashboard.</p>
+            </div>
           )}
         </div>
       </div>
