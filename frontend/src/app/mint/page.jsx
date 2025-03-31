@@ -184,7 +184,7 @@ export default function MINT() {
       setAiGeneratedImage(imageUrl);
       setBtnDisabled(false);
       updateMessage("");
-      toast.success("Image generated successfully!");
+      toast.success("Image generated successfully! Download and upload it to continue.");
     } catch (error) {
       console.error("Error generating image:", error);
       updateMessage("Error generating image. Please try again.");
@@ -208,15 +208,15 @@ export default function MINT() {
 
   async function handleAiSubmit(values) {
     try {
-      if (!aiGeneratedImage) {
-        toast.error("Please generate an image first!");
+      if (!fileURL) {
+        toast.error("Please wait for the image to be uploaded!");
         return;
       }
 
       setBtnContent("Processing...");
       const metadataURL = await uploadMetadataToIPFS({
         ...values,
-        image: aiGeneratedImage,
+        image: fileURL,
       });
       
       if (!metadataURL) return;
@@ -238,6 +238,7 @@ export default function MINT() {
       updateMessage("");
       aiForm.reset();
       setAiGeneratedImage(null);
+      setFileURL(null);
       toast.success("Successfully listed your AI-generated NFT!");
       router.push("/profile");
     } catch (e) {
