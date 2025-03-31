@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { WalletContext } from "@/context/wallet";
 import { BrowserProvider } from "ethers";
@@ -39,6 +39,20 @@ const Navbar = ({ className }) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -144,12 +158,13 @@ const Navbar = ({ className }) => {
                 type="button"
                 className="relative flex items-center space-x-2 px-3 py-1.5 bg-zinc-900/30 hover:bg-zinc-900/50 text-pink-400 border border-pink-500/20 rounded-lg transition-colors font-mono text-sm"
                 onClick={toggleDropdown}
+                ref={dropdownRef}
               >
                 <Wallet className="w-4 h-4" />
                 <span className="font-medium">{truncateAddress(userAddress)}</span>
                 <ChevronDown className="w-4 h-4" />
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-zinc-900/80 backdrop-blur-lg border border-zinc-800/50 rounded-lg shadow-lg py-2">
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800/50 rounded-lg shadow-xl py-2 z-50">
                     <ul className="text-sm font-mono">
                       <li>
                         <Link href="/leaderboard" className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 transition-colors">
@@ -171,7 +186,15 @@ const Navbar = ({ className }) => {
                       </li>
                       <li className="border-t border-zinc-800/50 my-2" />
                       <li>
-                        <button className="flex items-center space-x-2 w-full px-4 py-2 text-slate-300 hover:bg-zinc-800/50 hover:text-red-400 transition-colors">
+                        <button 
+                          onClick={() => {
+                            setIsConnected(false);
+                            setUserAddress("");
+                            setSigner(null);
+                            setIsDropdownOpen(false);
+                          }}
+                          className="flex items-center space-x-2 w-full px-4 py-2 text-slate-300 hover:bg-zinc-800/50 hover:text-red-400 transition-colors"
+                        >
                           <LogOut className="w-4 h-4" />
                           <span>DISCONNECT</span>
                         </button>
@@ -261,7 +284,7 @@ const Navbar = ({ className }) => {
 
                 {/* Dropdown Menu for Wallet Address */}
                 {isDropdownOpen && (
-                  <div className="mt-1 ml-4 space-y-1">
+                  <div className="mt-1 ml-4 space-y-1 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800/50 rounded-lg shadow-xl py-2">
                     <Link href="/leaderboard" className="flex items-center space-x-3 px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 rounded-lg transition-colors">
                       <BarChart2 className="w-5 h-5" />
                       <span>LEADERBOARD</span>
@@ -274,7 +297,15 @@ const Navbar = ({ className }) => {
                       <MessageSquare className="w-5 h-5" />
                       <span>DISCUSSIONS</span>
                     </Link>
-                    <button className="flex items-center space-x-3 w-full px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-red-400 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => {
+                        setIsConnected(false);
+                        setUserAddress("");
+                        setSigner(null);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="flex items-center space-x-3 w-full px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-red-400 rounded-lg transition-colors"
+                    >
                       <LogOut className="w-5 h-5" />
                       <span>DISCONNECT</span>
                     </button>

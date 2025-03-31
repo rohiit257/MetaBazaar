@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Navbar from "../components/navbar"
+import Navbar from "../components/Navbar"
 import {
   Accordion,
   AccordionContent,

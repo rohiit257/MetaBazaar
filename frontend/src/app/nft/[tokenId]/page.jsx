@@ -335,7 +335,7 @@ export default function NFTPage() {
                             View Analytics
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="bg-zinc-900/95 border-zinc-800 sm:max-w-[800px]">
+                        <DialogContent className="bg-zinc-900/95 border-zinc-800 sm:max-w-[1200px]">
                           <DialogHeader>
                             <DialogTitle className="flex items-center space-x-2">
                               <BarChart2 className="w-5 h-5 text-pink-400" />
@@ -343,7 +343,7 @@ export default function NFTPage() {
                             </DialogTitle>
                             <DialogDescription>Detailed price history and market data</DialogDescription>
                           </DialogHeader>
-                          <div className="grid gap-6">
+                          <div className="grid gap-4">
                             {/* Price Summary Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <Card className="bg-zinc-900/50 border-zinc-800">
@@ -380,10 +380,10 @@ export default function NFTPage() {
                             </div>
 
                             {/* Price Chart */}
-                            <div className="h-[500px] w-full">
+                            <div className="h-[350px] w-full">
                               <AreaChart
-                                width={800}
-                                height={500}
+                                width={1200}
+                                height={350}
                                 data={priceHistory}
                                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                               >
@@ -443,7 +443,7 @@ export default function NFTPage() {
                             </DialogTitle>
                             <DialogDescription>Complete history of all transactions</DialogDescription>
                           </DialogHeader>
-                          <div className="grid gap-6">
+                          <div className="grid gap-4">
                             {/* Transaction Summary Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <Card className="bg-zinc-900/50 border-zinc-800">
@@ -480,15 +480,15 @@ export default function NFTPage() {
                             </div>
 
                             {/* Transaction List */}
-                            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4">
+                            <div className="space-y-3">
                               {transactionHistory.length > 0 ? (
                                 transactionHistory.map((tx, index) => (
                                   <Card key={index} className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/50 transition-colors">
-                                    <CardContent className="p-4">
+                                    <CardContent className="p-3">
                                       <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-4">
-                                          <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                                            <ArrowRight className="w-5 h-5 text-pink-400" />
+                                        <div className="flex items-center space-x-3">
+                                          <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
+                                            <ArrowRight className="w-4 h-4 text-pink-400" />
                                           </div>
                                           <div>
                                             <p className="font-medium text-slate-200">

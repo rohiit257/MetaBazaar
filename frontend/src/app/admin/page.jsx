@@ -42,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import Navbar from "../components/Navbar";
 
 const MARKETPLACE_OWNER = "0xf29bbCFB987F3618515ddDe75D6CAd34cc1855D7";
 const MARKETPLACE_ADDRESS = MarketplaceJson.address.trim();
@@ -219,7 +220,8 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-black">
-        <div className="flex items-center justify-center min-h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
           <Card className="bg-zinc-900/50 border-zinc-800 max-w-md w-full">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Shield className="w-16 h-16 text-red-500 mb-6" />

@@ -1,11 +1,14 @@
-import { Inter } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletContextProvider } from "@/context/wallet";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
-const inter = Inter({ subsets: ["latin"] });
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ["latin"],
+  variable: '--font-jetbrains-mono',
+});
 
 export const metadata = {
   title: "MetaBazaar",
@@ -15,13 +18,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <WalletContextProvider>
-        <body className={inter.className}>
+        <body className={`${jetbrainsMono.variable} font-mono antialiased`}>
           {children}
+          <Toaster />
           <Analytics />
           <SpeedInsights />
-          <Toaster />
         </body>
       </WalletContextProvider>
     </html>
