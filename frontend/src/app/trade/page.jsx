@@ -7,7 +7,12 @@ import marketplace from "./../marketplace.json";
 import { WalletContext } from "@/context/wallet";
 import Navbar from "../components/Navbar";
 import { FlipWords } from "../components/ui/flip-words";
-// Assuming you have a FlipWords component
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Loader2, ArrowRight, Wallet, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TRADE() {
   const [formParams, updateFormParams] = useState({
@@ -60,78 +65,96 @@ export default function TRADE() {
   }
 
   return (
-    <div className="relative w-full h-screen bg-zinc-950 font-space-mono overflow-hidden">
+    <div className="min-h-screen bg-black">
       <Navbar />
-
+      
       {isConnected ? (
-        <div className="mx-auto max-w-7xl h-full lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
-          {/* Left Section */}
-          <div className="flex flex-col justify-center px-4 py-12 md:py-16 lg:col-span-7 lg:gap-x-6 lg:px-6 lg:py-24 xl:col-span-6 h-full">
-            <h1 className="mt-8 text-3xl font-bold tracking-tight text-slate-300 md:text-4xl lg:text-5xl">
-              Trade with <FlipWords words={['Friends','Creators']}/> Around the Globe
-            </h1>
-            <p className="mt-8 text-lg text-gray-700">
-              Trade your NFTs with ease. Enter the details below to start trading.
-            </p>
-            <form className="mt-8 flex flex-col space-y-4" onSubmit={tradeNFT}>
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="userId" className="text-sm font-medium text-gray-700">User ID</label>
-                <input
-                  className="flex w-full rounded-md border border-zinc-800 bg-transparent px-3 py-2 text-sm placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-black/30 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                  type="text"
-                  placeholder="eg-0xD9044DeF2F3B89D822585A6657C56f47a834a3da"
-                  id="userId"
-                  value={formParams.userId}
-                  onChange={(e) =>
-                    updateFormParams({ ...formParams, userId: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="nftTokenId" className="text-sm font-medium text-gray-700">NFT Token ID</label>
-                <input
-                  className="flex w-full rounded-md border border-zinc-800 bg-transparent px-3 py-2 text-sm placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-black/30 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                  type="text"
-                  placeholder="eg-2"
-                  id="nftTokenId"
-                  value={formParams.nftTokenId}
-                  onChange={(e) =>
-                    updateFormParams({ ...formParams, nftTokenId: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <button
-                  type="submit"
-                  className={`rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm ${
-                    btnDisabled ? "bg-sky-200 cursor-not-allowed" : "bg-pink-400 hover:bg-black/80"
-                  }`}
-                  disabled={btnDisabled}
-                >
-                  {loading && (
-                    <span className="animate-spin h-5 w-5 border-4 border-t-4 rounded-full mr-2 inline-block"></span>
-                  )}
-                  {btnContent}
-                </button>
-              </div>
-              <div className="text-red-500">{message}</div>
-            </form>
-          </div>
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-slate-200 mb-2">Trade NFTs</h1>
+              <p className="text-slate-400">Exchange NFTs with other creators in the community</p>
+            </div>
 
-          {/* Right Section with Image */}
-          <div className="relative lg:col-span-5 xl:col-span-6 h-full flex justify-center items-center">
-            <img
-              className="object-cover w-full h-[80vh] max-h-full"
-              src="https://plus.unsplash.com/premium_photo-1679079456783-5d862f755557?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjQ3fHxtYW4lMjB3aXRoJTIwbGFwdG9wfGVufDB8fDB8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=60"
-              alt="NFT Trading"
-            />
+            <Card className="bg-zinc-900/50 backdrop-blur-lg border-zinc-800">
+              <CardHeader>
+                <CardTitle className="text-xl text-slate-200">Trade Your NFT</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Enter the details below to start trading your NFT
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={tradeNFT} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">Recipient Address</Label>
+                      <div className="relative">
+                        <Input
+                          className="bg-zinc-800 border-zinc-700 text-slate-200 pl-10"
+                          type="text"
+                          placeholder="Enter recipient's wallet address"
+                          value={formParams.userId}
+                          onChange={(e) =>
+                            updateFormParams({ ...formParams, userId: e.target.value })
+                          }
+                        />
+                        <Wallet className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">NFT Token ID</Label>
+                      <div className="relative">
+                        <Input
+                          className="bg-zinc-800 border-zinc-700 text-slate-200 pl-10"
+                          type="text"
+                          placeholder="Enter the NFT token ID"
+                          value={formParams.nftTokenId}
+                          onChange={(e) =>
+                            updateFormParams({ ...formParams, nftTokenId: e.target.value })
+                          }
+                        />
+                        <RefreshCw className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {message && (
+                    <div className="text-sm text-red-400">{message}</div>
+                  )}
+
+                  <Button 
+                    type="submit"
+                    disabled={btnDisabled}
+                    className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <ArrowRight className="w-4 h-4 mr-2" />
+                        Trade NFT
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center p-4 relative">
-          <div className="font-bold text-lg text-gray-700 bg-black ">
-            CONNECT YOUR WALLET TO CONTINUE......
-          </div>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="bg-zinc-900/50 backdrop-blur-lg border-zinc-800">
+            <CardHeader>
+              <CardTitle className="text-xl text-slate-200">Connect Your Wallet</CardTitle>
+              <CardDescription className="text-slate-400">
+                Please connect your wallet to start trading NFTs
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </div>
       )}
     </div>
