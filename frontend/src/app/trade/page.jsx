@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ethers } from "ethers";
+import { ethers, formatEther } from "ethers";
 import marketplace from "./../marketplace.json";
 import { WalletContext } from "@/context/wallet";
 import Navbar from "../components/Navbar";
@@ -11,8 +11,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowRight, Wallet, RefreshCw } from "lucide-react";
+import { Loader2, ArrowRight, Wallet, RefreshCw, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function TRADE() {
   const [formParams, updateFormParams] = useState({
@@ -23,11 +31,70 @@ export default function TRADE() {
   const [btnDisabled, setBtnDisabled] = useState(false);
   const [btnContent, setBtnContent] = useState("TRADE NFT");
   const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const { isConnected, signer } = useContext(WalletContext);
+  const { isConnected, signer, userAddress } = useContext(WalletContext);
+
+  async function getMyNFTs() {
+    const itemsArray = [];
+
+    if (!signer) return;
+
+    const contract = new ethers.Contract(
+      marketplace.address.trim(),
+      marketplace.abi,
+      signer
+    );
+
+    try {
+      setIsLoading(true);
+      const transaction = await contract.getMyNFTs();
+
+      for (const i of transaction) {
+        const tokenId = parseInt(i.tokenId);
+        const tokenURI = await contract.tokenURI(tokenId);
+
+        try {
+          const { data: meta } = await axios.get(tokenURI);
+          const price = formatEther(i.price);
+
+          const item = {
+            price: parseFloat(price),
+            tokenId,
+            seller: i.seller,
+            owner: i.owner,
+            image: meta.image,
+            name: meta.name,
+            description: meta.description,
+            dateListed: i.dateListed,
+          };
+
+          itemsArray.push(item);
+        } catch (error) {
+          console.error(`Error fetching metadata for tokenId ${tokenId}:`, error.response ? error.response.data : error.message);
+        }
+      }
+
+      setItems(itemsArray);
+    } catch (error) {
+      console.error("Error fetching NFT items:", error.response ? error.response.data : error.message);
+      toast.error("Failed to fetch your NFTs");
+    } finally {
+      setIsLoading(false);
+    }
+
+    return itemsArray;
+  }
+
+  useEffect(() => {
+    if (isConnected && signer) {
+      getMyNFTs();
+    }
+  }, [isConnected, signer]);
 
   async function tradeNFT(e) {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
 
     const { userId, nftTokenId } = formParams;
     if (!userId || !nftTokenId) {
@@ -45,7 +112,6 @@ export default function TRADE() {
         signer
       );
 
-      // Assuming there is a method in your contract for transferring NFTs
       let transaction = await contract.tradeNFT(userId, nftTokenId);
       await transaction.wait();
 
@@ -54,10 +120,10 @@ export default function TRADE() {
       setLoading(false);
       updateMessage("");
       updateFormParams({ userId: "", nftTokenId: "" });
-      alert("Successfully traded the NFT!");
+      toast.success("Successfully traded the NFT!");
       router.push("/marketplace");
     } catch (e) {
-      alert("Trade error: " + e.message);
+      toast.error("Trade error: " + e.message);
       console.error("Error trading NFT:", e);
       setBtnContent("TRADE NFT");
       setLoading(false);
@@ -103,19 +169,44 @@ export default function TRADE() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-slate-200">NFT Token ID</Label>
-                      <div className="relative">
-                        <Input
-                          className="bg-zinc-800 border-zinc-700 text-slate-200 pl-10"
-                          type="text"
-                          placeholder="Enter the NFT token ID"
-                          value={formParams.nftTokenId}
-                          onChange={(e) =>
-                            updateFormParams({ ...formParams, nftTokenId: e.target.value })
-                          }
-                        />
-                        <RefreshCw className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-                      </div>
+                      <Label className="text-slate-200">Select NFT to Trade</Label>
+                      <Select
+                        value={formParams.nftTokenId}
+                        onValueChange={(value) =>
+                          updateFormParams({ ...formParams, nftTokenId: value })
+                        }
+                      >
+                        <SelectTrigger className="w-full bg-zinc-800 border-zinc-700 text-slate-200">
+                          <SelectValue placeholder="Select an NFT" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-800">
+                          {items.map((item) => (
+                            <SelectItem
+                              key={item.tokenId}
+                              value={item.tokenId.toString()}
+                              className="text-slate-300 hover:bg-zinc-800"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 flex items-center justify-center">
+                                  {item.image ? (
+                                    <img
+                                      src={item.image}
+                                      alt={item.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <ImageIcon className="w-4 h-4 text-slate-500" />
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="font-medium">{item.name}</div>
+                                  <div className="text-xs text-slate-400">#{item.tokenId}</div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -125,7 +216,7 @@ export default function TRADE() {
 
                   <Button 
                     type="submit"
-                    disabled={btnDisabled}
+                    disabled={btnDisabled || isLoading}
                     className="w-full bg-pink-500 hover:bg-pink-600 text-white"
                   >
                     {loading ? (

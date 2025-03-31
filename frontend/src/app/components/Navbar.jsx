@@ -69,8 +69,11 @@ const Navbar = ({ className }) => {
       setUserAddress(accounts[0]);
       toast.success("MetaMask Wallet Connected");
       const network = await provider.getNetwork();
+      console.log("Network", network);
       const chainID = network.chainId;
+      console.log("Chain ID", chainID);
       const sepoliaNetworkId = 11155111;
+      console.log("Sepolia Network ID", sepoliaNetworkId);
 
       if (chainID !== sepoliaNetworkId) {
         toast.warning("Switch to Polygon network to continue");

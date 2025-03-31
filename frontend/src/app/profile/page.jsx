@@ -80,7 +80,7 @@ export default function Profile() {
           itemsArray.push(item);
           totalAmount += parseFloat(price);
 
-          if (itemsArray.length === 1) {
+          if (itemsArray.length === 2) {
             setProfilePic(item.image);
           }
         } catch (error) {
@@ -365,7 +365,23 @@ export default function Profile() {
                             value={item.tokenId.toString()}
                             className="text-slate-300 hover:bg-zinc-800"
                           >
-                            {item.name} #{item.tokenId}
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 flex items-center justify-center">
+                                {item.image ? (
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <ImageIcon className="w-4 h-4 text-slate-500" />
+                                )}
+                              </div>
+                              <div>
+                                <div className="font-medium">{item.name}</div>
+                                <div className="text-xs text-slate-400">#{item.tokenId}</div>
+                              </div>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
