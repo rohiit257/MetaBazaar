@@ -8,6 +8,7 @@
     "@ethereum-waffle/chai": "^4.0.10",
     "@openzeppelin/contracts": "^5.0.2",
     "dotenv": "^16.4.5",
+    "framer-motion": "^12.6.2",
     "lucide-react": "^0.485.0"
   }
 }

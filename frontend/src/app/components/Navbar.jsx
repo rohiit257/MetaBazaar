@@ -75,7 +75,7 @@ const Navbar = ({ className }) => {
   };
 
   return (
-    <div className={`sticky top-0 z-50 w-full bg-black/40 backdrop-blur-md border-b border-zinc-800/30 ${className}`}>
+    <div className={`sticky top-0 z-50 w-full bg-black/20 backdrop-blur-md border-b border-zinc-800/30 ${className}`}>
       <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
         {/* Left Side - Hamburger Menu and Logo */}
         <div className="flex items-center space-x-6">
