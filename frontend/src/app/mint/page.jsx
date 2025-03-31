@@ -194,6 +194,18 @@ export default function MINT() {
     }
   }
 
+  // Function to download the generated image
+  function downloadGeneratedImage() {
+    if (!aiGeneratedImage) return;
+    
+    const link = document.createElement('a');
+    link.href = aiGeneratedImage;
+    link.download = 'generated-nft.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   async function handleAiSubmit(values) {
     try {
       if (!aiGeneratedImage) {
@@ -434,6 +446,28 @@ export default function MINT() {
                                 alt="AI Generated"
                                 className="object-cover w-full h-full"
                               />
+                              <div className="absolute bottom-4 right-4 flex space-x-2">
+                                <Button
+                                  type="button"
+                                  onClick={downloadGeneratedImage}
+                                  variant="outline"
+                                  className="bg-zinc-900/80 border-zinc-700 hover:bg-zinc-800/80 text-slate-200"
+                                >
+                                  <ArrowRight className="w-4 h-4 mr-2" />
+                                  Download Image
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-slate-200">Upload Generated Image</Label>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="file"
+                                  onChange={onFileChange}
+                                  className="bg-zinc-800 border-zinc-700 text-slate-200"
+                                />
+                                <Upload className="w-4 h-4 text-slate-400" />
+                              </div>
                             </div>
                           </div>
                         )}
