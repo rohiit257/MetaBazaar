@@ -6,7 +6,6 @@ import axios from "axios";
 import NFTCard from "../components/NFTCard";
 import SalesChart from "../components/SalesChart";
 import AdminSidebar from "../components/AdminSidebar";
-import Navbar from "../components/Navbar";
 import { WalletContext } from "../../context/wallet";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
@@ -220,8 +219,7 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-black">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+        <div className="flex items-center justify-center min-h-screen">
           <Card className="bg-zinc-900/50 border-zinc-800 max-w-md w-full">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Shield className="w-16 h-16 text-red-500 mb-6" />
@@ -233,23 +231,12 @@ export default function AdminPage() {
                 <p className="text-sm text-slate-400 mb-2">Required Address:</p>
                 <p className="font-mono text-pink-400 break-all">{MARKETPLACE_OWNER}</p>
               </div>
-              <div className="flex flex-col space-y-4 w-full">
-                {!isConnected ? (
-                  <Button 
-                    onClick={() => window.location.href = '/'}
-                    className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
-                  >
-                    Connect Wallet
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => router.push("/")}
-                    className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
-                  >
-                    Return to Home
-                  </Button>
-                )}
-              </div>
+              <Button 
+                onClick={() => router.push("/")}
+                className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 border border-pink-500/30"
+              >
+                Return to Home
+              </Button>
             </CardContent>
           </Card>
         </div>

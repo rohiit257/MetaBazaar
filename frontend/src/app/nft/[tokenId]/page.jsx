@@ -167,14 +167,14 @@ export default function NFTPage() {
         events.map(async (event) => {
           const { from, to, tokenId } = event.args;
           const tx = await event.getTransaction();
+          const block = await tx.getBlock();
           return {
             from,
             to,
             tokenId,
             transactionHash: tx.hash,
-            timestamp: new Date(
-              (await tx.getBlock()).timestamp * 1000
-            ).toLocaleString(),
+            timestamp: new Date(block.timestamp * 1000).toLocaleString(),
+            amount: tx.value || "0" // Use transaction value or default to "0"
           };
         })
       );
@@ -499,7 +499,7 @@ export default function NFTPage() {
                                         </div>
                                         <div className="text-right">
                                           <p className="font-medium text-slate-200">
-                                            {ethers.formatEther(tx.amount)} ETH
+                                            {ethers.formatEther(tx.amount || "0")} ETH
                                           </p>
                                           <p className="text-sm text-slate-400">
                                             {tx.timestamp}

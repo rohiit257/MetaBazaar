@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, ImagePlus, Wand2, Upload, ArrowRight } from "lucide-react";
+import { Loader2, ImagePlus, Wand2, Upload, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,17 +26,36 @@ const formSchema = z.object({
   price: z.string().min(1, "Price is required"),
 });
 
+const aiFormSchema = z.object({
+  prompt: z.string().min(10, "Prompt must be at least 10 characters"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  price: z.string().min(1, "Price is required"),
+});
+
 export default function MINT() {
   const [fileURL, setFileURL] = useState();
   const [message, updateMessage] = useState("");
   const [btnDisabled, setBtnDisabled] = useState(true);
   const [btnContent, setBtnContent] = useState("MINT NFT");
+  const [aiGeneratedImage, setAiGeneratedImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const router = useRouter();
   const { isConnected, signer } = useContext(WalletContext);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
+      description: "",
+      price: "",
+    },
+  });
+
+  const aiForm = useForm({
+    resolver: zodResolver(aiFormSchema),
+    defaultValues: {
+      prompt: "",
       name: "",
       description: "",
       price: "",
@@ -69,8 +88,8 @@ export default function MINT() {
   }
 
   async function uploadMetadataToIPFS(values) {
-    const { name, description, price } = values;
-    if (!name || !description || !price || !fileURL) {
+    const { name, description, price, image } = values;
+    if (!name || !description || !price || (!fileURL && !image)) {
       updateMessage("Please fill all the fields!");
       return null;
     }
@@ -79,7 +98,7 @@ export default function MINT() {
       name,
       description,
       price,
-      image: fileURL,
+      image: image || fileURL,
     };
 
     try {
@@ -115,7 +134,7 @@ export default function MINT() {
       let transaction = await contract.createToken(metadataURL, price);
       await transaction.wait();
 
-      setBtnContent("LIST NFT");
+      setBtnContent("MINT NFT");
       setBtnDisabled(true);
       updateMessage("");
       form.reset();
@@ -127,8 +146,96 @@ export default function MINT() {
     }
   }
 
+  async function generateImage(prompt) {
+    try {
+      setIsGenerating(true);
+      updateMessage("Generating image... Please wait!");
+
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_HUGGINGFACE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: {
+              negative_prompt: "blurry, bad quality, distorted, deformed, ugly, disfigured, poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, ugly, disgusting, amputation",
+              num_inference_steps: 50,
+              guidance_scale: 7.5,
+              width: 1024,
+              height: 1024,
+              num_outputs: 1,
+              scheduler: "K_EULER",
+              seed: Math.floor(Math.random() * 1000000),
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate image");
+      }
+
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      setAiGeneratedImage(imageUrl);
+      setBtnDisabled(false);
+      updateMessage("");
+      toast.success("Image generated successfully!");
+    } catch (error) {
+      console.error("Error generating image:", error);
+      updateMessage("Error generating image. Please try again.");
+      toast.error("Failed to generate image");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
+  async function handleAiSubmit(values) {
+    try {
+      if (!aiGeneratedImage) {
+        toast.error("Please generate an image first!");
+        return;
+      }
+
+      setBtnContent("Processing...");
+      const metadataURL = await uploadMetadataToIPFS({
+        ...values,
+        image: aiGeneratedImage,
+      });
+      
+      if (!metadataURL) return;
+
+      updateMessage("Uploading NFT... Please don't click anything!");
+
+      let contract = new ethers.Contract(
+        marketplace.address.trim(),
+        marketplace.abi,
+        signer
+      );
+      const price = ethers.parseEther(values.price);
+
+      let transaction = await contract.createToken(metadataURL, price);
+      await transaction.wait();
+
+      setBtnContent("MINT NFT");
+      setBtnDisabled(true);
+      updateMessage("");
+      aiForm.reset();
+      setAiGeneratedImage(null);
+      toast.success("Successfully listed your AI-generated NFT!");
+      router.push("/profile");
+    } catch (e) {
+      toast.error("Upload error: " + e.message);
+      console.error("Error listing NFT:", e);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black">
+    <div className="min-h-screen bg-black">
       <Navbar />
       
       {isConnected ? (
@@ -265,22 +372,154 @@ export default function MINT() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8">
-                      <Wand2 className="w-12 h-12 text-pink-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-slate-200 mb-2">Coming Soon</h3>
-                      <p className="text-slate-400 mb-6">
-                        Our AI-powered NFT creation feature is currently under development.
-                        Stay tuned for updates!
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        className="text-slate-200 border-zinc-700 hover:bg-zinc-800"
-                        disabled
-                      >
-                        <ArrowRight className="w-4 h-4 mr-2" />
-                        Notify Me
-                      </Button>
-                    </div>
+                    <Form {...aiForm}>
+                      <form onSubmit={aiForm.handleSubmit(handleAiSubmit)} className="space-y-6">
+                        <div className="space-y-4">
+                          <FormField
+                            control={aiForm.control}
+                            name="prompt"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-slate-200">Image Prompt</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    placeholder="Describe the image you want to generate (e.g., 'A magical forest with glowing mushrooms and fairies')" 
+                                    className="bg-zinc-800 border-zinc-700 text-slate-200 min-h-[100px]"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="flex space-x-4">
+                            <Button
+                              type="button"
+                              onClick={() => generateImage(aiForm.getValues("prompt"))}
+                              disabled={isGenerating || !aiForm.getValues("prompt")}
+                              className="flex-1 bg-pink-500 hover:bg-pink-600 text-white"
+                            >
+                              {isGenerating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Generating...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  Generate Image
+                                </>
+                              )}
+                            </Button>
+                            {aiGeneratedImage && (
+                              <Button
+                                type="button"
+                                onClick={() => generateImage(aiForm.getValues("prompt"))}
+                                variant="outline"
+                                className="flex-1 text-slate-200 border-zinc-700 hover:bg-zinc-800"
+                              >
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                                Regenerate
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        {aiGeneratedImage && (
+                          <div className="space-y-4">
+                            <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-zinc-700">
+                              <img
+                                src={aiGeneratedImage}
+                                alt="AI Generated"
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="space-y-4">
+                          <FormField
+                            control={aiForm.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-slate-200">NFT Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Enter NFT name" 
+                                    className="bg-zinc-800 border-zinc-700 text-slate-200"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={aiForm.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-slate-200">Description</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    placeholder="Describe your NFT" 
+                                    className="bg-zinc-800 border-zinc-700 text-slate-200 min-h-[100px]"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={aiForm.control}
+                            name="price"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-slate-200">Price (ETH)</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="number" 
+                                    placeholder="Enter price in ETH" 
+                                    className="bg-zinc-800 border-zinc-700 text-slate-200"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {message && (
+                          <div className="text-sm text-red-400">{message}</div>
+                        )}
+
+                        {aiGeneratedImage && (
+                          <Button 
+                            type="submit" 
+                            disabled={btnDisabled}
+                            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+                          >
+                            {btnContent === "Processing..." ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Processing...
+                              </>
+                            ) : (
+                              <>
+                                <ImagePlus className="w-4 h-4 mr-2" />
+                                Mint NFT
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </form>
+                    </Form>
                   </CardContent>
                 </Card>
               </TabsContent>
