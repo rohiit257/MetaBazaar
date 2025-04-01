@@ -149,13 +149,28 @@ export default function NFTPage() {
       const metaResponse = await axios.get(tokenURI);
       const meta = metaResponse.data;
 
+      // Get the NFT listing data
       const listedToken = await contract.getNFTListing(tokenId);
+      
+      // Get the actual current owner using ownerOf
+      const currentOwner = await contract.ownerOf(tokenId);
+
+      // Get transaction history to find latest transfer
+      const filter = contract.filters.Transfer(null, null, tokenId);
+      const events = await contract.queryFilter(filter);
+      
+      // Sort events by block number (descending) to get the most recent transfer
+      events.sort((a, b) => b.blockNumber - a.blockNumber);
+      
+      // The most recent transfer's recipient is the actual current owner
+      const mostRecentTransfer = events.length > 0 ? events[0] : null;
+      const actualCurrentOwner = mostRecentTransfer ? mostRecentTransfer.args.to : currentOwner;
 
       const item = {
         price: ethers.formatEther(listedToken.price),
         tokenId,
-        seller: listedToken.seller,
-        owner: listedToken.owner,
+        seller: actualCurrentOwner, // Use the actual current owner from recent transfers
+        owner: currentOwner,
         creator: listedToken.creator,
         image: meta.image,
         name: meta.name,
@@ -340,6 +355,31 @@ export default function NFTPage() {
     }
   }
 
+  // Add a refresh function to manually update the data
+  const refreshData = async () => {
+    if (!isConnected || !signer) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+    
+    try {
+      toast("Refreshing NFT data...");
+      setLoading(true);
+      
+      const refreshedItem = await getNFTData();
+      setItem(refreshedItem);
+      await fetchTransactionHistory();
+      await fetchPriceHistory();
+      
+      toast.success("NFT data refreshed successfully");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      toast.error("Failed to refresh NFT data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
       <Navbar />
@@ -381,12 +421,27 @@ export default function NFTPage() {
                   </p>
 
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-5 h-5 text-slate-500" />
-                      <div>
-                        <p className="text-sm text-slate-500">Seller</p>
-                        <p className="text-slate-300">{item?.seller || "Seller not available"}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <User className="w-5 h-5 text-slate-500" />
+                        <div>
+                          <p className="text-sm text-slate-500">Current Owner</p>
+                          <p className="text-slate-300">{item?.seller || "Owner not available"}</p>
+                        </div>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        className="text-xs px-2 py-1 bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/50 text-slate-300"
+                        onClick={refreshData}
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <div className="w-3 h-3 border-2 border-slate-300 border-t-transparent rounded-full animate-spin mr-1" />
+                        ) : (
+                          <ArrowRight className="w-3 h-3 mr-1" />
+                        )}
+                        Refresh
+                      </Button>
                     </div>
                     <div className="flex items-center space-x-2">
                       <User className="w-5 h-5 text-slate-500" />
