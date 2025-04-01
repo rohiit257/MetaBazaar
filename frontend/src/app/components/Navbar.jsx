@@ -102,7 +102,7 @@ const Navbar = ({ className }) => {
       console.log("Sepolia Network ID", sepoliaNetworkId);
 
       if (chainID !== sepoliaNetworkId) {
-        toast.warning("Switch to Polygon network to continue");
+        toast.warning("Switch to Sepolia network to continue");
       }
     } catch (error) {
       console.log("Connection error", error);
@@ -213,6 +213,15 @@ const Navbar = ({ className }) => {
                           <MessageSquare className="w-4 h-4" />
                           <span>DISCUSSIONS</span>
                         </Link>
+                      </li>
+                      <li>
+                        <a 
+                          href="mailto:rohitshahi581@gmail.com"
+                          className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 transition-colors"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          <span>CONTACT</span>
+                        </a>
                       </li>
                       <li className="border-t border-zinc-800/50 my-2" />
                       <li>
@@ -327,6 +336,13 @@ const Navbar = ({ className }) => {
                       <MessageSquare className="w-5 h-5" />
                       <span>DISCUSSIONS</span>
                     </Link>
+                    <a 
+                      href="mailto:rohitshahi581@gmail.com"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm font-mono text-slate-300 hover:bg-zinc-800/50 hover:text-pink-400 rounded-lg transition-colors"
+                    >
+                      <MessageSquare className="w-5 h-5" />
+                      <span>CONTACT</span>
+                    </a>
                     <button 
                       onClick={() => {
                         setIsConnected(false);
